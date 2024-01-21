@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL") // uses connection pooling
+}
+
+model User {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  phoneNumber String?
+  email       String       @unique
+  password    String?
+  shops       Shop[]
+  teamMembers TeamMember[]
+}
+
+model Shop {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  bio       String
+  address   String
+  latitude  String
+  longitude String
+  ownerId   String
+  owner     User         @relation(fields: [ownerId], references: [id])
+  products  Product[]
+  managers  TeamMember[]
+}
+
+model Product {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float
+  tags        String
+  stock       String
+  shopId      String
+  shop        Shop   @relation(fields: [shopId], references: [id])
+}
+
+enum UserRoles {
+  ADMIN
+  MANAGER
+}
+
+model TeamMember {
+  id     String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
+  user   User      @relation(fields: [userId], references: [id])
+  shopId String
+  shop   Shop      @relation(fields: [shopId], references: [id])
+  role   UserRoles
+}
