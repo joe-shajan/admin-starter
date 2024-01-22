@@ -17,7 +17,7 @@ const Header = () => {
     <div className="h-16 bg-slate-100 w-full flex justify-around items-center">
       <div>
         <Link href="/">
-          <h1 className="text-lg font-semibold">Inventory management</h1>
+          <h1 className="text-lg font-semibold">Gallery</h1>
         </Link>
       </div>
       {isSignupOrLogin ? (

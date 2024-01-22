@@ -3,14 +3,14 @@ import "./globals.css";
 
 import QueryClientProvider from "@/utils/provider";
 import React from "react";
-import Provider from "./context/client-provider";
+import Provider from "../context/client-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { Providers } from "@/redux/provider";
 
 export const metadata = {
-  title: "Inventory management",
-  description: "Manage your shop and inventory",
+  title: "Admin",
+  description: "Manage your website",
 };
 
 export default async function RootLayout({
