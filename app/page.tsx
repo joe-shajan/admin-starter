@@ -1,8 +1,9 @@
 "use client";
 
 import useModal from "@/hooks/useModal";
+import { getSections } from "@/services";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
@@ -10,10 +11,14 @@ export default function Home() {
   const { isOpen, toggle } = useModal();
   const { data: session } = useSession();
 
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["shops"],
-  //   queryFn: () => getAllShops(),
-  // });
+  const {
+    data: sections,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["sections"],
+    queryFn: () => getSections(),
+  });
 
   const mutation = useMutation({
     mutationFn: (data: any) => {
@@ -43,6 +48,11 @@ export default function Home() {
           >
             add section
           </button>
+          <div>
+            {sections?.map((section) => (
+              <div key={section.id}>{section.name}</div>
+            ))}
+          </div>
         </>
       ) : (
         <div className=" text-lg container my-2 mx-auto px-4 md:px-12 lg:px-28 flex justify-center items-center h-[400px]">

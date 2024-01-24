@@ -18,3 +18,10 @@ npx prisma db push
 ```sh
 npx prisma migrate dev --name <>
 ```
+
+
+### TODO
+
+- [ ] upload image
+- [ ] upload video
+- [ ] upload embed url

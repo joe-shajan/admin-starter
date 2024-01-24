@@ -22,6 +22,7 @@ enum SectionType {
   IMAGE
   VIDEO
   EMBEDED
+  TEXT
 }
 
 model Sections {
@@ -29,4 +30,5 @@ model Sections {
   name String      @unique
   type SectionType
   url  String?
+  text String?
 }
