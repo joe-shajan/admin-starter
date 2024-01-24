@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 
 import QueryClientProvider from "@/utils/provider";
@@ -13,6 +14,13 @@ export const metadata = {
   description: "Manage your website",
 };
 
+import { cn } from "@/lib/utils";
+
+export const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
 export default async function RootLayout({
   children,
 }: {
@@ -22,7 +30,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
+      >
         <Provider session={session}>
           <QueryClientProvider>
             <Providers>

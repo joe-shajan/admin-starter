@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import { Button } from "./Button";
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { Button } from "./ui";
 
 const Header = () => {
   const { data: session } = useSession();

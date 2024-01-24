@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import useModal from "@/hooks/useModal";
 import { getSections } from "@/services";
 
@@ -36,29 +37,20 @@ export default function Home() {
   });
 
   return (
-    <>
-      {session ? (
-        <>
-          <div>user logged in</div>
-          <button
-            onClick={() =>
-              mutation.mutate({ name: "section-1", type: "IMAGE" })
-            }
-            className="bg-black p-4 text-white"
-          >
-            add section
-          </button>
-          <div>
-            {sections?.map((section) => (
-              <div key={section.id}>{section.name}</div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <div className=" text-lg container my-2 mx-auto px-4 md:px-12 lg:px-28 flex justify-center items-center h-[400px]">
-          Login to continue
-        </div>
-      )}
-    </>
+    <div className="flex h-screen">
+      <div className="w-1/5 border">
+        {sections?.map((section) => (
+          <div key={section.id}>{section.name}</div>
+        ))}
+      </div>
+
+      <div className="border p-6">
+        <Button
+          onClick={() => mutation.mutate({ name: "section-1", type: "IMAGE" })}
+        >
+          add section
+        </Button>
+      </div>
+    </div>
   );
 }
