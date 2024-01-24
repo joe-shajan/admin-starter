@@ -1,5 +1,4 @@
 // This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -11,11 +10,10 @@ datasource db {
 }
 
 model User {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String?
-  phoneNumber String?
-  email       String  @unique
-  password    String?
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  email    String     @unique
+  password String?
+  sections Sections[]
 }
 
 enum SectionType {
@@ -26,9 +24,14 @@ enum SectionType {
 }
 
 model Sections {
-  id   String      @id @default(auto()) @map("_id") @db.ObjectId
-  name String      @unique
-  type SectionType
-  url  String?
-  text String?
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String      @unique
+  type        SectionType
+  url         String?
+  text        String?
+  position    Int?
+  addedTime   DateTime    @default(now())
+  updatedTime DateTime?
+  User        User        @relation(fields: [userId], references: [id])
+  userId      String      @db.ObjectId
 }

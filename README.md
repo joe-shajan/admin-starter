@@ -10,6 +10,10 @@ pnpm dev
 ## After updating prisma schema for mongodb
 
 ```sh
+npx prisma generate
+```
+
+```sh
 npx prisma db push
 ```
 

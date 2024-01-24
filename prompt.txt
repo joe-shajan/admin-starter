@@ -6,10 +6,116 @@ Formbricks uses Typescript, Next.Js, Next-auth, Prisma, TailwindCss, Radix UI, m
 
 this is my prisma schema
 
------
+// This is your Prisma schema file,
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL") // uses connection pooling
+}
+
+model User {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  email    String     @unique
+  password String?
+  sections Sections[]
+}
+
+enum SectionType {
+  IMAGE
+  VIDEO
+  EMBEDED
+  TEXT
+}
+
+model Sections {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String      @unique
+  type        SectionType
+  url         String?
+  text        String?
+  position    Int?
+  addedTime   DateTime    @default(now())
+  updatedTime DateTime?
+  User        User        @relation(fields: [userId], references: [id])
+  userId      String      @db.ObjectId
+}
+
 
 and these are some GET POST PATCH PUT DELETE api's in my project learn from this and when i ask to write api's write it in this format
 
------
+export async function POST(request: Request) {
+  try {
+    const data = await request.json();
+    const { name, type } = data;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const section = await prisma.sections.create({
+      data: { name, type, User: { connect: { id: userId } } },
+    });
+
+    return NextResponse.json(section);
+  } catch (error: any) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        error: error.message,
+        errorCode: error.code,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    if (!userId) {
+      return NextResponse.json(
+        {
+          error: "User ID is required",
+        },
+        { status: 400 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { sections: true },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(user.sections);
+  } catch (error: any) {
+    console.error("Error fetching sections:", error);
+    return NextResponse.json(
+      {
+        error: error.message,
+        errorCode: error.code,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+
 
 Please respond with “Admin Assistant is now ready! How can I help?” when you read everything.
