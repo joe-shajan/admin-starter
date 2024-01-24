@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionForm } from "@/components/sectionForm";
 import { Button } from "@/components/ui/button";
 import useModal from "@/hooks/useModal";
 import { getSections } from "@/services";
@@ -37,19 +38,21 @@ export default function Home() {
   });
 
   return (
-    <div className="flex h-screen">
-      <div className="w-1/5 border">
+    <div className="flex h-[91vh] p-2 gap-2">
+      <div className="w-1/5 border rounded">
         {sections?.map((section) => (
           <div key={section.id}>{section.name}</div>
         ))}
       </div>
 
-      <div className="border p-6">
+      <div className="border p-6 w-4/5 rounded">
+        {/* <div></div>
         <Button
           onClick={() => mutation.mutate({ name: "section-1", type: "IMAGE" })}
         >
           add section
-        </Button>
+        </Button> */}
+        <SectionForm />
       </div>
     </div>
   );

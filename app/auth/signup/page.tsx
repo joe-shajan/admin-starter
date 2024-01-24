@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import { Button } from "@/components";
+import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/Loader";
 
 const phoneRegex = new RegExp(

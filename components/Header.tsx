@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { Button } from "./ui";
+import { Button } from "./ui/button";
 
 const Header = () => {
   const { data: session } = useSession();

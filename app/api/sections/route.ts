@@ -1,23 +1,20 @@
+import { getCurrentUser } from "@/utils";
 import prisma from "@/utils/prisma";
 import { NextResponse } from "next/server";
 
-const userId = "65ad599feb001cc341ee9a22";
-
 export async function POST(request: Request) {
+  const user = await getCurrentUser();
+
   try {
     const data = await request.json();
     const { name, type } = data;
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
 
     if (!user) {
       throw new Error("User not found");
     }
 
     const section = await prisma.sections.create({
-      data: { name, type, User: { connect: { id: userId } } },
+      data: { name, type, User: { connect: { id: user.id } } },
     });
 
     return NextResponse.json(section);
@@ -35,18 +32,20 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const userDetails = await getCurrentUser();
+
   try {
-    if (!userId) {
+    if (!userDetails) {
       return NextResponse.json(
         {
-          error: "User ID is required",
+          error: "user not found",
         },
         { status: 400 }
       );
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userDetails.id },
       include: { sections: true },
     });
 

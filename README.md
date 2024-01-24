@@ -29,3 +29,4 @@ npx prisma migrate dev --name <>
 - [ ] upload image
 - [ ] upload video
 - [ ] upload embed url
+- [ ] text

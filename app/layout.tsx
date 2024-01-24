@@ -6,7 +6,7 @@ import QueryClientProvider from "@/utils/provider";
 import React from "react";
 import Provider from "../context/client-provider";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+
 import { Providers } from "@/redux/provider";
 
 export const metadata = {
@@ -15,6 +15,8 @@ export const metadata = {
 };
 
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
+import { authOptions } from "@/lib/authOptions";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -44,6 +46,7 @@ export default async function RootLayout({
             </Providers>
           </QueryClientProvider>
         </Provider>
+        <Toaster />
       </body>
     </html>
   );
