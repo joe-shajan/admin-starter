@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "./ui/use-toast";
 import {
@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import Link from "next/link";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -36,6 +35,9 @@ const FormSchema = z.object({
   type: z.string({
     required_error: "Please select an type.",
   }),
+  file: z.custom<File>((v) => v instanceof File, {
+    message: "file is required",
+  }),
 });
 
 export function SectionForm() {
@@ -43,6 +45,9 @@ export function SectionForm() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
+      id: "",
+      type: "",
+      file: undefined,
     },
   });
 
@@ -50,28 +55,33 @@ export function SectionForm() {
     mutationFn: (data: any) => {
       return axios.post("/api/sections", data);
     },
-    onSuccess: () => {
-      console.log("success");
-
-      // toast.success("Signup successfull now Log in");
+    onSuccess: (response) => {
+      toast({
+        title: "You submitted the following values:",
+        description: (
+          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">
+              {JSON.stringify(response.data, null, 2)}
+            </code>
+          </pre>
+        ),
+      });
       // router.push("/auth/login");
     },
     onError: () => {
+      // toast({ error: "some thing went wrong" });
       // toast.error("Signup failed");
     },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("id", data.id);
+    formData.append("type", data.type);
+    formData.append("file", data.file);
 
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    mutation.mutate(formData);
   }
 
   return (
@@ -140,6 +150,21 @@ export function SectionForm() {
             )}
           />
         </div>
+        <Controller
+          name="file"
+          control={form.control}
+          render={({ field: { ref, name, onBlur, onChange } }) => (
+            <input
+              type="file"
+              ref={ref}
+              name={name}
+              onBlur={onBlur}
+              onChange={(e) => {
+                onChange(e.target.files?.[0]);
+              }}
+            />
+          )}
+        />
         <Button type="submit">Submit</Button>
       </form>
     </Form>
