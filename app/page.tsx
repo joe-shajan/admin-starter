@@ -8,6 +8,7 @@ import { getSections } from "@/services";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import S3UploadForm from "@/components/S3UploadForm";
 
 export default function Home() {
   const { isOpen, toggle } = useModal();
@@ -20,21 +21,6 @@ export default function Home() {
   } = useQuery({
     queryKey: ["sections"],
     queryFn: () => getSections(),
-  });
-
-  const mutation = useMutation({
-    mutationFn: (data: any) => {
-      return axios.post("/api/sections", data);
-    },
-    onSuccess: () => {
-      console.log("success");
-
-      // toast.success("Signup successfull now Log in");
-      // router.push("/auth/login");
-    },
-    onError: () => {
-      // toast.error("Signup failed");
-    },
   });
 
   return (
@@ -52,7 +38,8 @@ export default function Home() {
         >
           add section
         </Button> */}
-        <SectionForm />
+        {/* <SectionForm /> */}
+        <S3UploadForm />
       </div>
     </div>
   );
