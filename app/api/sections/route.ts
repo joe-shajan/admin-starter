@@ -41,23 +41,40 @@ export async function POST(request: any) {
     const name = formData.get("name");
     const type = formData.get("type");
     const file = formData.get("file");
+    const text = formData.get("text");
+    const embedUrl = formData.get("embedUrl");
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    if (!file) {
-      return NextResponse.json({ error: "File is required." }, { status: 400 });
+    if ((type === "IMAGE" || type === "VIDEO") && file) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileName = await uploadFileToS3(buffer, file.name, type);
+
+      const section = await prisma.sections.create({
+        data: { name, type, url: fileName, User: { connect: { id: user.id } } },
+      });
+
+      return NextResponse.json(section);
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = await uploadFileToS3(buffer, file.name, type);
+    if (type === "TEXT" && text) {
+      const section = await prisma.sections.create({
+        data: { name, type, text, User: { connect: { id: user.id } } },
+      });
 
-    const section = await prisma.sections.create({
-      data: { name, type, url: fileName, User: { connect: { id: user.id } } },
-    });
+      return NextResponse.json(section);
+    }
 
-    return NextResponse.json(section);
+    if (type === "EMBEDED" && embedUrl) {
+      const section = await prisma.sections.create({
+        data: { name, type, url: embedUrl, User: { connect: { id: user.id } } },
+      });
+
+      return NextResponse.json(section);
+    }
+    throw new Error("Incorrect data or type");
   } catch (error: any) {
     console.log(error);
 

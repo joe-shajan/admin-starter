@@ -35,9 +35,21 @@ const FormSchema = z.object({
   type: z.string({
     required_error: "Please select an type.",
   }),
-  file: z.custom<File>((v) => v instanceof File, {
-    message: "file is required",
-  }),
+  file: z.optional(
+    z.custom<File>((v) => v instanceof File, {
+      message: "file is required",
+    })
+  ),
+  text: z.optional(
+    z.string({
+      required_error: "Please enter the text",
+    })
+  ),
+  embedUrl: z.optional(
+    z.string({
+      required_error: "Please add the url",
+    })
+  ),
 });
 
 export function SectionForm() {
@@ -48,6 +60,8 @@ export function SectionForm() {
       id: "",
       type: "",
       file: undefined,
+      text: "",
+      embedUrl: "",
     },
   });
 
@@ -79,11 +93,19 @@ export function SectionForm() {
     formData.append("name", data.name);
     formData.append("id", data.id);
     formData.append("type", data.type);
-    formData.append("file", data.file);
-
+    if (data.file) {
+      formData.append("file", data.file);
+    }
+    if (data.text) {
+      formData.append("text", data.text);
+    }
+    if (data.embedUrl) {
+      formData.append("embedUrl", data.embedUrl);
+    }
     mutation.mutate(formData);
   }
 
+  const type = form.watch("type");
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
@@ -95,7 +117,7 @@ export function SectionForm() {
               <FormItem>
                 <FormLabel>Section Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="About" {...field} />
+                  <Input placeholder="name" {...field} />
                 </FormControl>
                 <FormDescription>
                   This is your section display name.
@@ -139,7 +161,7 @@ export function SectionForm() {
                     <SelectItem value="IMAGE">Image</SelectItem>
                     <SelectItem value="VIDEO">Video</SelectItem>
                     <SelectItem value="TEXT">Text</SelectItem>
-                    <SelectItem value="LINK">Link</SelectItem>
+                    <SelectItem value="EMBEDED">Embeded</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>
@@ -150,21 +172,58 @@ export function SectionForm() {
             )}
           />
         </div>
-        <Controller
-          name="file"
-          control={form.control}
-          render={({ field: { ref, name, onBlur, onChange } }) => (
-            <input
-              type="file"
-              ref={ref}
-              name={name}
-              onBlur={onBlur}
-              onChange={(e) => {
-                onChange(e.target.files?.[0]);
-              }}
-            />
-          )}
-        />
+        <div>{type}</div>
+        {type === "IMAGE" || type === "VIDEO" ? (
+          <Controller
+            name="file"
+            control={form.control}
+            render={({ field: { ref, name, onBlur, onChange } }) => (
+              <input
+                type="file"
+                ref={ref}
+                name={name}
+                onBlur={onBlur}
+                onChange={(e) => {
+                  onChange(e.target.files?.[0]);
+                }}
+              />
+            )}
+          />
+        ) : null}
+        {type === "TEXT" ? (
+          <FormField
+            control={form.control}
+            name="text"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <FormLabel>Text</FormLabel>
+                <FormControl>
+                  <Input placeholder="Text" {...field} />
+                </FormControl>
+                <FormDescription>This is your content</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : null}
+        {type === "EMBEDED" ? (
+          <FormField
+            control={form.control}
+            name="embedUrl"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <FormLabel>Embeded URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="Embeded code" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your video Embeded code.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : null}
         <Button type="submit">Submit</Button>
       </form>
     </Form>
