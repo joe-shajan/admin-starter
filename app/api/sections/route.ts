@@ -37,7 +37,7 @@ async function uploadFileToS3(fileBuffer: any, fileName: string, type: string) {
   return `https://${bucketName}.s3.amazonaws.com/${encodedFileName}`;
 }
 
-export async function deleteFileFromS3(fileName: string): Promise<void> {
+async function deleteFileFromS3(fileName: string): Promise<void> {
   try {
     // Specify parameters for S3 object deletion
     const params = {
