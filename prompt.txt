@@ -47,24 +47,48 @@ model Sections {
 
 and these are some GET POST PATCH PUT DELETE api's in my project learn from this and when i ask to write api's write it in this format
 
-export async function POST(request: Request) {
-  try {
-    const data = await request.json();
-    const { name, type } = data;
+export async function POST(request: any) {
+  const user = await getCurrentUser();
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+  try {
+    const formData = await request.formData();
+    const name = formData.get("name");
+    const type = formData.get("type");
+    const file = formData.get("file");
+    const text = formData.get("text");
+    const embedUrl = formData.get("embedUrl");
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const section = await prisma.sections.create({
-      data: { name, type, User: { connect: { id: userId } } },
-    });
+    if ((type === "IMAGE" || type === "VIDEO") && file) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileName = await uploadFileToS3(buffer, file.name, type);
 
-    return NextResponse.json(section);
+      const section = await prisma.sections.create({
+        data: { name, type, url: fileName, User: { connect: { id: user.id } } },
+      });
+
+      return NextResponse.json(section);
+    }
+
+    if (type === "TEXT" && text) {
+      const section = await prisma.sections.create({
+        data: { name, type, text, User: { connect: { id: user.id } } },
+      });
+
+      return NextResponse.json(section);
+    }
+
+    if (type === "EMBEDED" && embedUrl) {
+      const section = await prisma.sections.create({
+        data: { name, type, url: embedUrl, User: { connect: { id: user.id } } },
+      });
+
+      return NextResponse.json(section);
+    }
+    throw new Error("Incorrect data or type");
   } catch (error: any) {
     console.log(error);
 
@@ -79,18 +103,20 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const userDetails = await getCurrentUser();
+
   try {
-    if (!userId) {
+    if (!userDetails) {
       return NextResponse.json(
         {
-          error: "User ID is required",
+          error: "user not found",
         },
         { status: 400 }
       );
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userDetails.id },
       include: { sections: true },
     });
 
@@ -115,7 +141,5 @@ export async function GET(request: Request) {
     );
   }
 }
-
-
 
 Please respond with “Admin Assistant is now ready! How can I help?” when you read everything.

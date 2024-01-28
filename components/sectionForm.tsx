@@ -24,6 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Sections } from "@/types";
+import { useEffect } from "react";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -52,7 +56,14 @@ const FormSchema = z.object({
   ),
 });
 
-export function SectionForm() {
+type SectionFormProps = {
+  selectedSection: Sections | null;
+};
+export function SectionForm({ selectedSection }: SectionFormProps) {
+  const isEditing = !!selectedSection;
+  const section = selectedSection;
+  console.log(isEditing);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -65,9 +76,30 @@ export function SectionForm() {
     },
   });
 
+  useEffect(() => {
+    if (selectedSection) {
+      form.setValue("name", selectedSection.name);
+      form.setValue("id", selectedSection.id);
+      form.setValue("type", selectedSection.type);
+
+      if (selectedSection.url && type === "EMBEDED") {
+        form.setValue("embedUrl", selectedSection.url);
+      }
+      if (selectedSection.text) {
+        form.setValue("text", selectedSection.text);
+      }
+
+      // form.setValue("name",selectedSection.)
+    }
+  }, [selectedSection]);
+
   const mutation = useMutation({
     mutationFn: (data: any) => {
-      return axios.post("/api/sections", data);
+      if (isEditing) {
+        return axios.put("/api/sections", data);
+      } else {
+        return axios.post("/api/sections", data);
+      }
     },
     onSuccess: (response) => {
       toast({
@@ -107,125 +139,188 @@ export function SectionForm() {
 
   const type = form.watch("type");
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
-        <div className="flex justify-between w-full">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Section Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="name" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your section display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="id"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Section id</FormLabel>
-                <FormControl>
-                  <Input placeholder="ID" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Add this ID in your HTML element
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-6"
+        >
+          <div className="flex justify-between w-full">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Section Name</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
+                    <Input placeholder="name" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="IMAGE">Image</SelectItem>
-                    <SelectItem value="VIDEO">Video</SelectItem>
-                    <SelectItem value="TEXT">Text</SelectItem>
-                    <SelectItem value="EMBEDED">Embeded</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Select the type of your section
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+                  <FormDescription>
+                    This is your section display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="id"
+              render={({ field: { value, onChange } }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Section id</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="ID"
+                      value={value}
+                      onChange={onChange}
+                      disabled
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add this ID in your HTML element
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field: { value, onChange } }) => (
+                <>
+                  {isEditing ? (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="type" disabled value={value} />
+                      </FormControl>
+                      <FormDescription>This is your type.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  ) : (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select onValueChange={onChange} defaultValue={value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="IMAGE">Image</SelectItem>
+                          <SelectItem value="VIDEO">Video</SelectItem>
+                          <SelectItem value="TEXT">Text</SelectItem>
+                          <SelectItem value="EMBEDED">Embeded</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select the type of your section
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                </>
+              )}
+            />
+          </div>
+          <div>{type}</div>
+          {type === "IMAGE" || type === "VIDEO" ? (
+            <Controller
+              name="file"
+              control={form.control}
+              render={({ field: { ref, name, onBlur, onChange } }) => (
+                <input
+                  type="file"
+                  ref={ref}
+                  name={name}
+                  onBlur={onBlur}
+                  onChange={(e) => {
+                    onChange(e.target.files?.[0]);
+                  }}
+                />
+              )}
+            />
+          ) : null}
+          {type === "TEXT" ? (
+            <FormField
+              control={form.control}
+              name="text"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Text</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Text" {...field} />
+                  </FormControl>
+                  <FormDescription>This is your content</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
+          {type === "EMBEDED" ? (
+            <FormField
+              control={form.control}
+              name="embedUrl"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Embeded URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Embeded code" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This is your video Embeded code.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
+          {mutation.isLoading ? (
+            <Button disabled>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEditing ? "Updating" : "Submiting"}
+            </Button>
+          ) : (
+            <Button type="submit">{isEditing ? "Update" : "Submit"}</Button>
+          )}
+        </form>
+      </Form>
+
+      {section?.type === "IMAGE" && section.url ? (
+        <div className="w-full relative pt-[50%] mt-2">
+          <Image
+            src={section.url}
+            alt="profile"
+            objectFit="cover"
+            fill
+            className="w-full h-full top-0 left-0 object-contain rounded-md"
           />
         </div>
-        <div>{type}</div>
-        {type === "IMAGE" || type === "VIDEO" ? (
-          <Controller
-            name="file"
-            control={form.control}
-            render={({ field: { ref, name, onBlur, onChange } }) => (
-              <input
-                type="file"
-                ref={ref}
-                name={name}
-                onBlur={onBlur}
-                onChange={(e) => {
-                  onChange(e.target.files?.[0]);
-                }}
-              />
-            )}
-          />
-        ) : null}
-        {type === "TEXT" ? (
-          <FormField
-            control={form.control}
-            name="text"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Text</FormLabel>
-                <FormControl>
-                  <Input placeholder="Text" {...field} />
-                </FormControl>
-                <FormDescription>This is your content</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : null}
-        {type === "EMBEDED" ? (
-          <FormField
-            control={form.control}
-            name="embedUrl"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Embeded URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="Embeded code" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your video Embeded code.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : null}
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+      ) : null}
+
+      {section?.type === "VIDEO" && section.url ? (
+        <div className="w-full mt-2 rounded-md overflow-hidden">
+          <video src={section.url} autoPlay loop muted></video>
+        </div>
+      ) : null}
+
+      {section?.type === "TEXT" && section.text ? (
+        <div className="w-full h-28 p-1  mt-2 border rounded-md">
+          <p>{section.text}</p>
+        </div>
+      ) : null}
+
+      {section?.type === "EMBEDED" && section.url ? (
+        <div className="w-full  mt-2  overflow-hidden rounded-md">
+          {/* <p>{section.url}</p> */}
+          <iframe
+            width="100%"
+            height="100%"
+            src={section.url}
+            allow="accelerometer; encrypted-media; gyroscope"
+          ></iframe>
+        </div>
+      ) : null}
+    </>
   );
 }

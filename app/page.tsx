@@ -9,10 +9,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useState } from "react";
+import { Sections } from "@/types";
 
 export default function Home() {
   const { isOpen, toggle } = useModal();
   const { data: session } = useSession();
+  const [selectedSection, setSelectedSection] = useState<Sections | null>(null);
 
   const {
     data: sections,
@@ -27,23 +30,18 @@ export default function Home() {
     <div className="flex h-[91vh] p-2 gap-2">
       <div className="w-1/5 border rounded overflow-auto">
         {sections?.map((section) => (
-          <div key={section.id} className="px-6 py-3 ">
-            <div className="cursor-pointer">
+          <div key={section.id} className="px-6 py-3">
+            <div
+              className="cursor-pointer"
+              onClick={() => setSelectedSection(section)}
+            >
               <div className="w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {section.name}
               </div>
-
-              {/* <Image
-                src="https://agency-demo-joe.s3.amazonaws.com/360_F_283839302_yt6JIsE96Pj4PydFDcBNKDUnuSpYB9h0.jpg"
-                className="w-full h-auto"
-                alt="image"
-                fill
-                objectFit="contain"
-              /> */}
-              {section.type === "IMAGE" ? (
+              {section.type === "IMAGE" && section.url ? (
                 <div className="w-full relative pt-[50%] mt-2">
                   <Image
-                    src="https://agency-demo-joe.s3.amazonaws.com/360_F_283839302_yt6JIsE96Pj4PydFDcBNKDUnuSpYB9h0.jpg"
+                    src={section.url}
                     alt="profile"
                     objectFit="cover"
                     fill
@@ -70,7 +68,7 @@ export default function Home() {
                   <iframe
                     width="100%"
                     height="100%"
-                    src="https://www.youtube.com/embed/aSW7RJ5zWgE"
+                    src={section.url}
                     allow="accelerometer; encrypted-media; gyroscope"
                   ></iframe>
                 </div>
@@ -78,6 +76,16 @@ export default function Home() {
             </div>
           </div>
         ))}
+        <div className="px-6 py-3">
+          <div
+            className="cursor-pointer"
+            onClick={() => setSelectedSection(null)}
+          >
+            <div className="w-full h-44 border rounded-md whitespace-nowrap overflow-hidden text-ellipsis">
+              Add new
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="border p-6 w-4/5 rounded">
@@ -87,7 +95,7 @@ export default function Home() {
         >
           add section
         </Button> */}
-        <SectionForm />
+        <SectionForm selectedSection={selectedSection} />
       </div>
     </div>
   );
