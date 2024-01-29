@@ -142,4 +142,33 @@ export async function GET(request: Request) {
   }
 }
 
+and this is a react quey mution 
+
+  const mutation = useMutation({
+    mutationFn: (data: any) => {
+      if (isEditing) {
+        return axios.put("/api/sections", data);
+      } else {
+        return axios.post("/api/sections", data);
+      }
+    },
+    onSuccess: (response) => {
+      toast({
+        title: "You submitted the following values:",
+        description: (
+          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">
+              {JSON.stringify(response.data, null, 2)}
+            </code>
+          </pre>
+        ),
+      });
+      // router.push("/auth/login");
+    },
+    onError: () => {
+      // toast({ error: "some thing went wrong" });
+      // toast.error("Signup failed");
+    },
+  });
+  
 Please respond with “Admin Assistant is now ready! How can I help?” when you read everything.

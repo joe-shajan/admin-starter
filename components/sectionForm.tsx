@@ -27,7 +27,7 @@ import {
 import { Sections } from "@/types";
 import { useEffect } from "react";
 import Image from "next/image";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -92,6 +92,33 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
       // form.setValue("name",selectedSection.)
     }
   }, [selectedSection]);
+
+  // Assuming you're using React Query, update your mutation hook as follows:
+
+  const deleteMutation = useMutation({
+    mutationFn: (sectionId: string) => {
+      return axios.delete(`/api/sections/${sectionId}`);
+    },
+    onSuccess: (response) => {
+      toast({
+        title: "Section deleted successfully",
+      });
+      // Handle any additional logic after successful deletion
+    },
+    onError: (error) => {
+      console.log(error);
+      toast({
+        title: "Error deleting section",
+      });
+    },
+  });
+
+  // Call this mutation function when you want to delete a section
+  // For example, onClick of a delete button in your UI:
+
+  const handleDeleteSection = (sectionId: string) => {
+    deleteMutation.mutate(sectionId);
+  };
 
   const mutation = useMutation({
     mutationFn: (data: any) => {
@@ -286,6 +313,24 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
             <Button type="submit">{isEditing ? "Update" : "Submit"}</Button>
           )}
         </form>
+        {isEditing ? (
+          <>
+            {deleteMutation.isLoading ? (
+              <Button variant="destructive" disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="ms-2"
+                onClick={() => handleDeleteSection(selectedSection.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </Button>
+            )}
+          </>
+        ) : null}
       </Form>
       <div className="w-2/3 h-2/3">
         {section?.type === "IMAGE" && section.url ? (
