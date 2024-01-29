@@ -68,7 +68,7 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      id: "",
+      id: "0",
       type: "",
       file: undefined,
       text: "",
@@ -145,7 +145,7 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-6"
         >
-          <div className="flex justify-between w-full">
+          <div className="flex gap-10 w-full">
             <FormField
               control={form.control}
               name="name"
@@ -162,27 +162,29 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="id"
-              render={({ field: { value, onChange } }: { field: any }) => (
-                <FormItem>
-                  <FormLabel>Section id</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="ID"
-                      value={value}
-                      onChange={onChange}
-                      disabled
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Add this ID in your HTML element
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {isEditing ? (
+              <FormField
+                control={form.control}
+                name="id"
+                render={({ field: { value, onChange } }: { field: any }) => (
+                  <FormItem>
+                    <FormLabel>Section id</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="ID"
+                        value={value}
+                        onChange={onChange}
+                        disabled
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Add this ID in your HTML element
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <FormField
               control={form.control}
               name="type"
@@ -223,7 +225,7 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
               )}
             />
           </div>
-          <div>{type}</div>
+
           {type === "IMAGE" || type === "VIDEO" ? (
             <Controller
               name="file"
@@ -285,42 +287,43 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
           )}
         </form>
       </Form>
+      <div className="w-2/3 h-2/3">
+        {section?.type === "IMAGE" && section.url ? (
+          <div className="w-full relative pt-[50%] mt-2">
+            <Image
+              src={section.url}
+              alt="profile"
+              objectFit="cover"
+              fill
+              className="w-full h-full top-0 left-0 object-contain rounded-md"
+            />
+          </div>
+        ) : null}
 
-      {section?.type === "IMAGE" && section.url ? (
-        <div className="w-full relative pt-[50%] mt-2">
-          <Image
-            src={section.url}
-            alt="profile"
-            objectFit="cover"
-            fill
-            className="w-full h-full top-0 left-0 object-contain rounded-md"
-          />
-        </div>
-      ) : null}
+        {section?.type === "VIDEO" && section.url ? (
+          <div className="w-full h-full mt-2 rounded-md overflow-hidden">
+            <video src={section.url} autoPlay loop muted></video>
+          </div>
+        ) : null}
 
-      {section?.type === "VIDEO" && section.url ? (
-        <div className="w-full mt-2 rounded-md overflow-hidden">
-          <video src={section.url} autoPlay loop muted></video>
-        </div>
-      ) : null}
+        {section?.type === "TEXT" && section.text ? (
+          <div className="w-full h-28 p-1  mt-2 border rounded-md">
+            <p>{section.text}</p>
+          </div>
+        ) : null}
 
-      {section?.type === "TEXT" && section.text ? (
-        <div className="w-full h-28 p-1  mt-2 border rounded-md">
-          <p>{section.text}</p>
-        </div>
-      ) : null}
-
-      {section?.type === "EMBEDED" && section.url ? (
-        <div className="w-full  mt-2  overflow-hidden rounded-md">
-          {/* <p>{section.url}</p> */}
-          <iframe
-            width="100%"
-            height="100%"
-            src={section.url}
-            allow="accelerometer; encrypted-media; gyroscope"
-          ></iframe>
-        </div>
-      ) : null}
+        {section?.type === "EMBEDED" && section.url ? (
+          <div className="w-full  mt-2  overflow-hidden rounded-md">
+            {/* <p>{section.url}</p> */}
+            <iframe
+              width="100%"
+              height="100%"
+              src={section.url}
+              allow="accelerometer; encrypted-media; gyroscope"
+            ></iframe>
+          </div>
+        ) : null}
+      </div>
     </>
   );
 }
