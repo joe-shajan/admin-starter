@@ -28,6 +28,7 @@ import { Sections } from "@/types";
 import { useEffect } from "react";
 import Image from "next/image";
 import { Loader2, Trash2 } from "lucide-react";
+import { Label } from "./ui/label";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -234,16 +235,22 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
               name="file"
               control={form.control}
               render={({ field: { ref, name, onBlur, onChange } }) => (
-                <input
-                  type="file"
-                  accept={`${type === "IMAGE" ? "image/*" : "video/*"}`}
-                  ref={ref}
-                  name={name}
-                  onBlur={onBlur}
-                  onChange={(e) => {
-                    onChange(e.target.files?.[0]);
-                  }}
-                />
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <Label htmlFor="file">
+                    {type === "IMAGE" ? "Image" : "Video"}
+                  </Label>
+                  <Input
+                    id="file"
+                    type="file"
+                    accept={`${type === "IMAGE" ? "image/*" : "video/*"}`}
+                    ref={ref}
+                    name={name}
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      onChange(e.target.files?.[0]);
+                    }}
+                  />
+                </div>
               )}
             />
           ) : null}
