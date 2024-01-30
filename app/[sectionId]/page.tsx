@@ -13,9 +13,11 @@ export default function Home() {
   return (
     <div className="flex h-[91vh] p-2 gap-2">
       <Sections />
-      <div className="border p-6 w-4/5 rounded flex justify-center items-center">
-        <h4 className="text-2xl font-medium">Select a section to edit</h4>
-      </div>
+
+      <SectionForm
+        selectedSection={selectedSection}
+        setSelectedSection={setSelectedSection}
+      />
     </div>
   );
 }
