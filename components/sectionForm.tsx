@@ -55,17 +55,12 @@ const FormSchema = z.object({
 });
 
 type SectionFormProps = {
-  selectedSection: Sections | null;
-  setSelectedSection: (section: Sections | null) => void;
+  selectedSection: Sections | undefined;
 };
 
-export function SectionForm({
-  selectedSection,
-  setSelectedSection,
-}: SectionFormProps) {
+export function SectionForm({ selectedSection }: SectionFormProps) {
   const isEditing = !!selectedSection;
   const section = selectedSection;
-  console.log(isEditing);
 
   const queryClient = useQueryClient();
 
@@ -105,7 +100,7 @@ export function SectionForm({
       return axios.delete(`/api/sections/${sectionId}`);
     },
     onSuccess: (response) => {
-      setSelectedSection(null);
+      form.reset();
       queryClient.invalidateQueries({ queryKey: ["sections"] });
       toast({
         title: "Section deleted successfully",

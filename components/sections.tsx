@@ -7,10 +7,13 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
 import { SkeletonCard } from "./skeletons";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
 export const Sections = (props: Props) => {
+  const router = useRouter();
+
   const {
     data: sections,
     isLoading,
@@ -38,7 +41,7 @@ export const Sections = (props: Props) => {
             <div key={section.id} className="px-4 py-3">
               <div
                 className="cursor-pointer"
-                // onClick={() => setSelectedSection(section)}
+                onClick={() => router.push(`/${section.id}`)}
               >
                 <div className="w-full whitespace-nowrap overflow-hidden text-ellipsis">
                   {section.name}

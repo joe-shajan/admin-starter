@@ -96,3 +96,54 @@ export async function DELETE(request: Request, { params }: any) {
     );
   }
 }
+
+export async function GET(request: Request, { params }: any) {
+  const userDetails = await getCurrentUser();
+
+  try {
+    if (!userDetails) {
+      return NextResponse.json(
+        {
+          error: "User not found",
+        },
+        { status: 400 }
+      );
+    }
+
+    const sectionId = params.id as string;
+
+    const section = await prisma.sections.findUnique({
+      where: { id: sectionId },
+      include: { User: true },
+    });
+
+    if (!section) {
+      return NextResponse.json(
+        {
+          error: "Section not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    if (section.User.id !== userDetails.id) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.json(section);
+  } catch (error: any) {
+    console.error("Error fetching section:", error);
+    return NextResponse.json(
+      {
+        error: error.message,
+        errorCode: error.code,
+      },
+      { status: 500 }
+    );
+  }
+}
