@@ -56,15 +56,10 @@ const FormSchema = z.object({
 
 type SectionFormProps = {
   selectedSection?: Sections | undefined;
-  hide: boolean;
   isEditing: boolean;
 };
 
-export function SectionForm({
-  selectedSection,
-  hide,
-  isEditing,
-}: SectionFormProps) {
+export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
   const section = selectedSection;
 
   const queryClient = useQueryClient();
@@ -98,35 +93,6 @@ export function SectionForm({
     }
   }, [selectedSection]);
 
-  // Assuming you're using React Query, update your mutation hook as follows:
-
-  const deleteMutation = useMutation({
-    mutationFn: (sectionId: string) => {
-      return axios.delete(`/api/sections/${sectionId}`);
-    },
-    onSuccess: (response) => {
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: ["sections"] });
-      toast({
-        title: "Section deleted successfully",
-      });
-      // Handle any additional logic after successful deletion
-    },
-    onError: (error) => {
-      console.log(error);
-      toast({
-        title: "Error deleting section",
-      });
-    },
-  });
-
-  // Call this mutation function when you want to delete a section
-  // For example, onClick of a delete button in your UI:
-
-  const handleDeleteSection = (sectionId: string) => {
-    deleteMutation.mutate(sectionId);
-  };
-
   const mutation = useMutation({
     mutationFn: (data: any) => {
       if (isEditing) {
@@ -136,6 +102,7 @@ export function SectionForm({
       }
     },
     onSuccess: (response) => {
+      form.reset();
       queryClient.invalidateQueries({ queryKey: ["sections"] });
       toast({
         title: "You submitted the following values:",
@@ -175,11 +142,7 @@ export function SectionForm({
 
   const type = form.watch("type");
   return (
-    <div
-      className={`${
-        hide ? `hidden md:block  w-4/5` : `w-full`
-      } border rounded p-6`}
-    >
+    <>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -327,24 +290,6 @@ export function SectionForm({
             <Button type="submit">{isEditing ? "Update" : "Submit"}</Button>
           )}
         </form>
-        {isEditing && selectedSection ? (
-          <>
-            {deleteMutation.isLoading ? (
-              <Button variant="destructive" disabled>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting
-              </Button>
-            ) : (
-              <Button
-                variant="destructive"
-                className="ms-2"
-                onClick={() => handleDeleteSection(selectedSection.id)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Delete
-              </Button>
-            )}
-          </>
-        ) : null}
       </Form>
       <div className="w-2/3 h-2/3">
         {section?.type === "IMAGE" && section.url ? (
@@ -383,6 +328,6 @@ export function SectionForm({
           </div>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }
