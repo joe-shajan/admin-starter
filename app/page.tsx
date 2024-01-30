@@ -95,7 +95,10 @@ export default function Home() {
         >
           add section
         </Button> */}
-        <SectionForm selectedSection={selectedSection} />
+        <SectionForm
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+        />
       </div>
     </div>
   );

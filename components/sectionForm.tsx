@@ -15,7 +15,7 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import {
   Select,
@@ -33,9 +33,7 @@ const FormSchema = z.object({
   name: z.string().min(4, {
     message: "section name must be at least 4 characters.",
   }),
-  id: z.string().min(4, {
-    message: "section name must be at least 4 characters.",
-  }),
+  id: z.string(),
   type: z.string({
     required_error: "Please select an type.",
   }),
@@ -58,17 +56,24 @@ const FormSchema = z.object({
 
 type SectionFormProps = {
   selectedSection: Sections | null;
+  setSelectedSection: (section: Sections | null) => void;
 };
-export function SectionForm({ selectedSection }: SectionFormProps) {
+
+export function SectionForm({
+  selectedSection,
+  setSelectedSection,
+}: SectionFormProps) {
   const isEditing = !!selectedSection;
   const section = selectedSection;
   console.log(isEditing);
+
+  const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      id: "0",
+      id: "",
       type: "",
       file: undefined,
       text: "",
@@ -100,6 +105,8 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
       return axios.delete(`/api/sections/${sectionId}`);
     },
     onSuccess: (response) => {
+      setSelectedSection(null);
+      queryClient.invalidateQueries({ queryKey: ["sections"] });
       toast({
         title: "Section deleted successfully",
       });
@@ -129,6 +136,7 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
       }
     },
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["sections"] });
       toast({
         title: "You submitted the following values:",
         description: (
@@ -161,6 +169,7 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
     if (data.embedUrl) {
       formData.append("embedUrl", data.embedUrl);
     }
+
     mutation.mutate(formData);
   }
 
@@ -260,6 +269,7 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
               render={({ field: { ref, name, onBlur, onChange } }) => (
                 <input
                   type="file"
+                  accept={`${type === "IMAGE" ? "image/*" : "video/*"}`}
                   ref={ref}
                   name={name}
                   onBlur={onBlur}
