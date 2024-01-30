@@ -21,7 +21,7 @@ export const Sections = (props: Props) => {
   });
 
   return (
-    <div className="w-1/5 border rounded overflow-auto">
+    <div className="w-full md:w-1/5 border rounded overflow-auto">
       <div className="py-4 px-4 flex justify-end">
         <Link href="/new">
           <Button>Add new section</Button>

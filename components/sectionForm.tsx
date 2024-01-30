@@ -175,7 +175,7 @@ export function SectionForm({
 
   const type = form.watch("type");
   return (
-    <div className="border p-6 w-4/5 rounded">
+    <div className="border p-6 w-4/5 rounded hidden md:block">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
