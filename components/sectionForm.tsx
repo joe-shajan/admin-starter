@@ -56,9 +56,10 @@ const FormSchema = z.object({
 
 type SectionFormProps = {
   selectedSection: Sections | undefined;
+  hide: boolean;
 };
 
-export function SectionForm({ selectedSection }: SectionFormProps) {
+export function SectionForm({ selectedSection, hide }: SectionFormProps) {
   const isEditing = !!selectedSection;
   const section = selectedSection;
 
@@ -170,7 +171,11 @@ export function SectionForm({ selectedSection }: SectionFormProps) {
 
   const type = form.watch("type");
   return (
-    <div className="border p-6 w-4/5 rounded hidden md:block">
+    <div
+      className={`${
+        hide ? `hidden md:block  w-4/5` : `w-full`
+      } border rounded p-6`}
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

@@ -20,13 +20,13 @@ export default function Section() {
 
   return (
     <div className="flex h-[91vh] p-2 gap-2">
-      <Sections />
+      <Sections hide />
       {isLoading ? (
         <div>loading...</div>
       ) : error ? (
         <div>cound not found section</div>
       ) : (
-        <SectionForm selectedSection={section} />
+        <SectionForm selectedSection={section} hide={false} />
       )}
     </div>
   );

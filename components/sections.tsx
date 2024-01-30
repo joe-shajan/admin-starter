@@ -9,9 +9,11 @@ import { Button } from "./ui/button";
 import { SkeletonCard } from "./skeletons";
 import { useRouter } from "next/navigation";
 
-type Props = {};
+type Props = {
+  hide: boolean;
+};
 
-export const Sections = (props: Props) => {
+export const Sections = ({ hide }: Props) => {
   const router = useRouter();
 
   const {
@@ -24,7 +26,11 @@ export const Sections = (props: Props) => {
   });
 
   return (
-    <div className="w-full md:w-1/5 border rounded overflow-auto">
+    <div
+      className={`${
+        hide ? `hidden md:block md:w-1/5` : `w-full md:w-1/5`
+      } border rounded overflow-auto`}
+    >
       <div className="py-4 px-4 flex justify-end">
         <Link href="/new">
           <Button>Add new section</Button>
