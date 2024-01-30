@@ -175,7 +175,7 @@ export function SectionForm({
 
   const type = form.watch("type");
   return (
-    <>
+    <div className="border p-6 w-4/5 rounded">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -379,6 +379,6 @@ export function SectionForm({
           </div>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
