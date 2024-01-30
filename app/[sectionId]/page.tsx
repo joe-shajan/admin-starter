@@ -61,14 +61,20 @@ export default function Section() {
           {section ? (
             <>
               {deleteMutation.isLoading ? (
-                <Button variant="destructive" disabled>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="mt-2"
+                  disabled
+                >
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Deleting
                 </Button>
               ) : (
                 <Button
                   variant="destructive"
-                  className="ms-2"
+                  size="sm"
+                  className="mt-2"
                   onClick={() => handleDeleteSection(section.id)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" /> Delete

@@ -291,15 +291,15 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
           )}
         </form>
       </Form>
-      <div className="w-2/3 h-2/3">
+      <div className="w-80 h-60">
         {section?.type === "IMAGE" && section.url ? (
           <div className="w-full relative pt-[50%] mt-2">
             <Image
               src={section.url}
               alt="profile"
-              objectFit="cover"
+              objectFit="contain"
               fill
-              className="w-full h-full top-0 left-0 object-contain rounded-md"
+              className="w-full h-full top-0 left-0 rounded-md"
             />
           </div>
         ) : null}
