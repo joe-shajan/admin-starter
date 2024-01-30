@@ -49,7 +49,7 @@ export default function Section() {
   };
 
   return (
-    <div className="flex h-[91vh] p-2 gap-2">
+    <div className="flex md:h-[91vh] p-2 gap-2">
       <Sections hide />
       {isLoading ? (
         <div>loading...</div>

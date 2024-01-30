@@ -143,92 +143,90 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
 
   const type = form.watch("type");
   return (
-    <>
+    <div className="flex flex-col md:flex-row">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-6"
+          className="w-full md:w-1/2 space-y-6"
         >
-          <div className="flex gap-10 w-full">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <FormLabel>Section Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="name" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your section display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {isEditing ? (
             <FormField
               control={form.control}
-              name="name"
-              render={({ field }: { field: any }) => (
+              name="id"
+              render={({ field: { value, onChange } }: { field: any }) => (
                 <FormItem>
-                  <FormLabel>Section Name</FormLabel>
+                  <FormLabel>Section id</FormLabel>
                   <FormControl>
-                    <Input placeholder="name" {...field} />
+                    <Input
+                      placeholder="ID"
+                      value={value}
+                      onChange={onChange}
+                      disabled
+                    />
                   </FormControl>
                   <FormDescription>
-                    This is your section display name.
+                    Add this ID in your HTML element
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {isEditing ? (
-              <FormField
-                control={form.control}
-                name="id"
-                render={({ field: { value, onChange } }: { field: any }) => (
+          ) : null}
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field: { value, onChange } }) => (
+              <>
+                {isEditing ? (
                   <FormItem>
-                    <FormLabel>Section id</FormLabel>
+                    <FormLabel>Type</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="ID"
-                        value={value}
-                        onChange={onChange}
-                        disabled
-                      />
+                      <Input placeholder="type" disabled value={value} />
                     </FormControl>
+                    <FormDescription>This is your type.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                ) : (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <Select onValueChange={onChange} defaultValue={value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="IMAGE">Image</SelectItem>
+                        <SelectItem value="VIDEO">Video</SelectItem>
+                        <SelectItem value="TEXT">Text</SelectItem>
+                        <SelectItem value="EMBEDED">Embeded</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormDescription>
-                      Add this ID in your HTML element
+                      Select the type of your section
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-            ) : null}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field: { value, onChange } }) => (
-                <>
-                  {isEditing ? (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <FormControl>
-                        <Input placeholder="type" disabled value={value} />
-                      </FormControl>
-                      <FormDescription>This is your type.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  ) : (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select onValueChange={onChange} defaultValue={value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="IMAGE">Image</SelectItem>
-                          <SelectItem value="VIDEO">Video</SelectItem>
-                          <SelectItem value="TEXT">Text</SelectItem>
-                          <SelectItem value="EMBEDED">Embeded</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Select the type of your section
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                </>
-              )}
-            />
-          </div>
+              </>
+            )}
+          />
 
           {type === "IMAGE" || type === "VIDEO" ? (
             <Controller
@@ -288,17 +286,23 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
               )}
             />
           ) : null}
-          {mutation.isLoading ? (
-            <Button disabled>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isEditing ? "Updating" : "Submiting"}
-            </Button>
-          ) : (
-            <Button type="submit">{isEditing ? "Update" : "Submit"}</Button>
-          )}
+          <div className="flex justify-center">
+            {mutation.isLoading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditing ? "Updating" : "Submiting"}
+              </Button>
+            ) : (
+              <Button type="submit">{isEditing ? "Update" : "Submit"}</Button>
+            )}
+          </div>
         </form>
       </Form>
-      <div className="w-80 h-60">
+      <div className="md:w-1/2 w-full h-80 p-8">
+        {section ? (
+          <h4 className="text-center font-semibold mb-4">Preview</h4>
+        ) : null}
+
         {section?.type === "IMAGE" && section.url ? (
           <div className="w-full relative pt-[50%] mt-2">
             <Image
@@ -335,6 +339,6 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
           </div>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
