@@ -55,12 +55,16 @@ const FormSchema = z.object({
 });
 
 type SectionFormProps = {
-  selectedSection: Sections | undefined;
+  selectedSection?: Sections | undefined;
   hide: boolean;
+  isEditing: boolean;
 };
 
-export function SectionForm({ selectedSection, hide }: SectionFormProps) {
-  const isEditing = !!selectedSection;
+export function SectionForm({
+  selectedSection,
+  hide,
+  isEditing,
+}: SectionFormProps) {
   const section = selectedSection;
 
   const queryClient = useQueryClient();
@@ -78,7 +82,7 @@ export function SectionForm({ selectedSection, hide }: SectionFormProps) {
   });
 
   useEffect(() => {
-    if (selectedSection) {
+    if (isEditing && selectedSection) {
       form.setValue("name", selectedSection.name);
       form.setValue("id", selectedSection.id);
       form.setValue("type", selectedSection.type);
@@ -323,7 +327,7 @@ export function SectionForm({ selectedSection, hide }: SectionFormProps) {
             <Button type="submit">{isEditing ? "Update" : "Submit"}</Button>
           )}
         </form>
-        {isEditing ? (
+        {isEditing && selectedSection ? (
           <>
             {deleteMutation.isLoading ? (
               <Button variant="destructive" disabled>

@@ -26,7 +26,7 @@ export default function Section() {
       ) : error ? (
         <div>cound not found section</div>
       ) : (
-        <SectionForm selectedSection={section} hide={false} />
+        <SectionForm selectedSection={section} hide={false} isEditing={true} />
       )}
     </div>
   );
