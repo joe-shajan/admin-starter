@@ -57,15 +57,15 @@ export const Sections = ({ hide }: Props) => {
                     <Image
                       src={section.url}
                       alt="profile"
-                      objectFit="cover"
+                      objectFit="contain"
                       fill
-                      className="w-full h-auto top-0 left-0 object-contain rounded-md"
+                      className="w-full h-auto top-0 left-0 rounded-md border"
                     />
                   </div>
                 ) : null}
 
                 {section.type === "VIDEO" && section.url ? (
-                  <div className="w-full mt-2 rounded-md overflow-hidden">
+                  <div className="w-full mt-2 rounded-md border overflow-hidden">
                     <video src={section.url} autoPlay loop muted></video>
                   </div>
                 ) : null}
@@ -77,7 +77,7 @@ export const Sections = ({ hide }: Props) => {
                 ) : null}
 
                 {section.type === "EMBEDED" && section.url ? (
-                  <div className="w-full  mt-2  overflow-hidden rounded-md">
+                  <div className="w-full  mt-2  overflow-hidden border rounded-md">
                     {/* <p>{section.url}</p> */}
                     <iframe
                       width="100%"
