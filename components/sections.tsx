@@ -8,12 +8,16 @@ import React from "react";
 import { Button } from "./ui/button";
 import { SkeletonCard } from "./skeletons";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { isSuperAdmin } from "@/lib/utils";
 
 type Props = {
   hide: boolean;
 };
 
 export const Sections = ({ hide }: Props) => {
+  const { data: session } = useSession();
+
   const router = useRouter();
 
   const {
@@ -31,11 +35,13 @@ export const Sections = ({ hide }: Props) => {
         hide ? `hidden md:block md:w-1/5` : `w-full md:w-1/5`
       } border rounded overflow-auto`}
     >
-      <div className="py-4 px-4 flex justify-end">
-        <Link href="/new">
-          <Button>Add new section</Button>
-        </Link>
-      </div>
+      {isSuperAdmin(session) ? (
+        <div className="py-4 px-4 flex justify-end">
+          <Link href="/new">
+            <Button>Add new section</Button>
+          </Link>
+        </div>
+      ) : null}
       {isLoading ? (
         <div className="px-4 py-3 flex flex-col space-y-6">
           <SkeletonCard />

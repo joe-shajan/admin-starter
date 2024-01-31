@@ -9,11 +9,14 @@ import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Loader2, Trash2 } from "lucide-react";
+import { isSuperAdmin } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 export default function Section() {
   const { sectionId } = useParams();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { data: session } = useSession();
 
   const {
     data: section,
@@ -58,7 +61,7 @@ export default function Section() {
       ) : (
         <div className={`w-full md:w-4/5 border rounded p-6`}>
           <SectionForm selectedSection={section} isEditing={true} />
-          {section ? (
+          {section && isSuperAdmin(session) ? (
             <>
               {deleteMutation.isLoading ? (
                 <Button
