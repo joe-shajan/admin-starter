@@ -15,29 +15,44 @@ enum Role {
 }
 
 model User {
-  id       String     @id @default(auto()) @map("_id") @db.ObjectId
-  email    String     @unique
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  email    String    @unique
   password String?
-  role     Role       @default(ADMIN)
-  sections Sections[]
+  role     Role      @default(ADMIN)
+  sections Section[]
+}
+
+enum ContentType {
+  IMAGE
+  VIDEO
+  EMBEDDED
 }
 
 enum SectionType {
-  IMAGE
-  VIDEO
-  EMBEDED
-  TEXT
+  SINGLE
+  MULTIPLE
 }
 
-model Sections {
+model SectionItem {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  name        String      @unique
-  type        SectionType
+  heading1    String?
+  heading2    String?
+  text1       String?
+  text2       String?
+  contentType ContentType
   url         String?
-  text        String?
-  position    Int?
-  addedTime   DateTime    @default(now())
-  updatedTime DateTime?
-  User        User        @relation(fields: [userId], references: [id])
-  userId      String      @db.ObjectId
+  Section     Section?    @relation(fields: [sectionId], references: [id])
+  sectionId   String?     @db.ObjectId
+}
+
+model Section {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String        @unique
+  sectionType  SectionType
+  sectionItems SectionItem[]
+  position     Int?
+  addedTime    DateTime      @default(now())
+  updatedTime  DateTime?
+  User         User          @relation(fields: [userId], references: [id])
+  userId       String        @db.ObjectId
 }
