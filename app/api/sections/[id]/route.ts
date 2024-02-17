@@ -32,6 +32,71 @@ async function deleteFileFromS3(fileName: string): Promise<void> {
   }
 }
 
+// export async function DELETE(request: Request, { params }: any) {
+//   const userDetails = await getCurrentUser();
+
+//   try {
+//     if (!userDetails) {
+//       return NextResponse.json(
+//         {
+//           error: "User not found",
+//         },
+//         { status: 400 }
+//       );
+//     }
+
+//     const sectionId = params.id as string;
+
+//     const section = await prisma.sections.findUnique({
+//       where: { id: sectionId },
+//       include: { User: true },
+//     });
+
+//     if (!section) {
+//       return NextResponse.json(
+//         {
+//           error: "Section not found",
+//         },
+//         { status: 404 }
+//       );
+//     }
+
+//     if (section.User.id !== userDetails.id) {
+//       return NextResponse.json(
+//         {
+//           error: "Unauthorized",
+//         },
+//         { status: 401 }
+//       );
+//     }
+
+//     if ((section.type === "IMAGE" || section.type === "VIDEO") && section.url) {
+//       await deleteFileFromS3(section.url);
+//     }
+
+//     // Delete section from database
+//     await prisma.sections.delete({
+//       where: { id: sectionId },
+//     });
+
+//     return NextResponse.json(
+//       {
+//         message: "Section deleted successfully",
+//       },
+//       { status: 200 }
+//     );
+//   } catch (error: any) {
+//     console.error("Error deleting section:", error);
+//     return NextResponse.json(
+//       {
+//         error: error.message,
+//         errorCode: error.code,
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
+
 export async function DELETE(request: Request, { params }: any) {
   const userDetails = await getCurrentUser();
 
@@ -47,9 +112,9 @@ export async function DELETE(request: Request, { params }: any) {
 
     const sectionId = params.id as string;
 
-    const section = await prisma.sections.findUnique({
+    const section = await prisma.section.findUnique({
       where: { id: sectionId },
-      include: { User: true },
+      include: { User: true, sectionItems: true },
     });
 
     if (!section) {
@@ -70,12 +135,29 @@ export async function DELETE(request: Request, { params }: any) {
       );
     }
 
-    if ((section.type === "IMAGE" || section.type === "VIDEO") && section.url) {
-      await deleteFileFromS3(section.url);
+    // Delete associated files from S3 if section type is IMAGE or VIDEO
+    if (
+      section.sectionItems.some(
+        (item) => item.contentType === "IMAGE" || item.contentType === "VIDEO"
+      ) &&
+      section.sectionItems.some((item) => item.url)
+    ) {
+      await Promise.all(
+        section.sectionItems
+          .filter(
+            (item) =>
+              item.contentType === "IMAGE" || item.contentType === "VIDEO"
+          )
+          .map(async (item) => {
+            if (item.url) {
+              await deleteFileFromS3(item.url);
+            }
+          })
+      );
     }
 
     // Delete section from database
-    await prisma.sections.delete({
+    await prisma.section.delete({
       where: { id: sectionId },
     });
 
@@ -112,7 +194,7 @@ export async function GET(request: Request, { params }: any) {
 
     const sectionId = params.id as string;
 
-    const section = await prisma.sections.findUnique({
+    const section = await prisma.section.findUnique({
       where: { id: sectionId },
       include: { User: true },
     });

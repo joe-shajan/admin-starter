@@ -57,48 +57,98 @@ const addDate = (fileName: string): string => {
   return `${fileName}-${Date.now()}`;
 };
 
+// export async function POST(request: any) {
+//   const user = await getCurrentUser();
+
+//   try {
+//     const formData = await request.formData();
+//     const name = formData.get("name");
+//     const type = formData.get("type");
+//     const file = formData.get("file");
+//     const text = formData.get("text");
+//     const embedUrl = formData.get("embedUrl");
+
+//     if (!user) {
+//       throw new Error("User not found");
+//     }
+
+//     if ((type === "IMAGE" || type === "VIDEO") && file) {
+//       const buffer = Buffer.from(await file.arrayBuffer());
+//       const fileName = await uploadFileToS3(buffer, addDate(file.name), type);
+
+//       const section = await prisma.sections.create({
+//         data: { name, type, url: fileName, User: { connect: { id: user.id } } },
+//       });
+
+//       return NextResponse.json(section);
+//     }
+
+//     if (type === "TEXT" && text) {
+//       const section = await prisma.sections.create({
+//         data: { name, type, text, User: { connect: { id: user.id } } },
+//       });
+
+//       return NextResponse.json(section);
+//     }
+
+//     if (type === "EMBEDDED" && embedUrl) {
+//       const section = await prisma.sections.create({
+//         data: { name, type, url: embedUrl, User: { connect: { id: user.id } } },
+//       });
+
+//       return NextResponse.json(section);
+//     }
+//     throw new Error("Incorrect data or type");
+//   } catch (error: any) {
+//     console.log(error);
+
+//     return NextResponse.json(
+//       {
+//         error: error.message,
+//         errorCode: error.code,
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
+
 export async function POST(request: any) {
   const user = await getCurrentUser();
 
   try {
     const formData = await request.formData();
     const name = formData.get("name");
-    const type = formData.get("type");
-    const file = formData.get("file");
-    const text = formData.get("text");
-    const embedUrl = formData.get("embedUrl");
+    const sectionType = formData.get("sectionType");
+    const contentType = formData.get("contentType");
+    const heading1 = formData.get("heading1");
+    const heading2 = formData.get("heading2");
+    const text1 = formData.get("text1");
+    const text2 = formData.get("text2");
+    const url = formData.get("url");
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    if ((type === "IMAGE" || type === "VIDEO") && file) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = await uploadFileToS3(buffer, addDate(file.name), type);
+    const section = await prisma.section.create({
+      data: {
+        name,
+        sectionType,
+        sectionItems: {
+          create: {
+            heading1,
+            heading2,
+            text1,
+            text2,
+            contentType,
+            url,
+          },
+        },
+        User: { connect: { id: user.id } },
+      },
+    });
 
-      const section = await prisma.sections.create({
-        data: { name, type, url: fileName, User: { connect: { id: user.id } } },
-      });
-
-      return NextResponse.json(section);
-    }
-
-    if (type === "TEXT" && text) {
-      const section = await prisma.sections.create({
-        data: { name, type, text, User: { connect: { id: user.id } } },
-      });
-
-      return NextResponse.json(section);
-    }
-
-    if (type === "EMBEDED" && embedUrl) {
-      const section = await prisma.sections.create({
-        data: { name, type, url: embedUrl, User: { connect: { id: user.id } } },
-      });
-
-      return NextResponse.json(section);
-    }
-    throw new Error("Incorrect data or type");
+    return NextResponse.json(section);
   } catch (error: any) {
     console.log(error);
 
@@ -122,11 +172,15 @@ export async function PUT(request: any) {
 
     const formData = await request.formData();
     const id = formData.get("id");
+    const sectionItemId = formData.get("sectionItemId");
     const name = formData.get("name");
-    const type = formData.get("type");
-    const file = formData.get("file");
-    const text = formData.get("text");
-    const embedUrl = formData.get("embedUrl");
+    const sectionType = formData.get("sectionType");
+    const contentType = formData.get("contentType");
+    const heading1 = formData.get("heading1");
+    const heading2 = formData.get("heading2");
+    const text1 = formData.get("text1");
+    const text2 = formData.get("text2");
+    const url = formData.get("url");
 
     if (!id) {
       throw new Error("Section ID not provided");
@@ -134,45 +188,26 @@ export async function PUT(request: any) {
 
     let updatedSection;
 
-    if ((type === "IMAGE" || type === "VIDEO") && file) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = await uploadFileToS3(buffer, addDate(file.name), type);
-
-      // Delete old file from S3 if section is being updated with a new image or video
-      const oldSection = await prisma.sections.findUnique({ where: { id } });
-      if (
-        oldSection?.url &&
-        (oldSection.type === "IMAGE" || oldSection.type === "VIDEO")
-      ) {
-        await deleteFileFromS3(oldSection.url); // Implement deleteFileFromS3 function
-      }
-
-      updatedSection = await prisma.sections.update({
-        where: { id },
-        data: { name, url: fileName },
-      });
-    } else if (type === "IMAGE" || type === "VIDEO") {
-      updatedSection = await prisma.sections.update({
-        where: { id },
-        data: { name },
-      });
-    } else if (type === "TEXT" && text) {
-      updatedSection = await prisma.sections.update({
-        where: { id },
-        data: { name, text },
-      });
-    } else if (type === "EMBEDED" && embedUrl) {
-      updatedSection = await prisma.sections.update({
-        where: { id },
-        data: { name, url: embedUrl },
-      });
-    } else {
-      throw new Error("Incorrect data or type");
-    }
-
-    if (!updatedSection) {
-      throw new Error("Section not updated");
-    }
+    updatedSection = await prisma.section.update({
+      where: { id },
+      data: {
+        name,
+        sectionType,
+        sectionItems: {
+          update: {
+            where: { id: sectionItemId },
+            data: {
+              heading1,
+              heading2,
+              text1,
+              text2,
+              contentType,
+              url,
+            },
+          },
+        },
+      },
+    });
 
     return NextResponse.json(updatedSection);
   } catch (error: any) {

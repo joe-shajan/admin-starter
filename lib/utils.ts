@@ -6,5 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isSuperAdmin = (session: any) => {
-  return session.user.email === "joeshajan@outlook.coms";
+  console.log(session.user);
+
+  return session.user.email === "joeshajan@outlook.com";
 };

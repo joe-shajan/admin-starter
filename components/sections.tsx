@@ -55,44 +55,9 @@ export const Sections = ({ hide }: Props) => {
                 className="cursor-pointer"
                 onClick={() => router.push(`/${section.id}`)}
               >
-                <div className="w-full whitespace-nowrap overflow-hidden text-ellipsis">
+                <div className="w-full whitespace-nowrap text-lg overflow-hidden text-ellipsis p-2 rounded-lg hover:bg-slate-50 transition ease">
                   {section.name}
                 </div>
-                {section.type === "IMAGE" && section.url ? (
-                  <div className="w-full relative pt-[50%] mt-2">
-                    <Image
-                      src={section.url}
-                      alt="profile"
-                      objectFit="contain"
-                      fill
-                      className="w-full h-auto top-0 left-0 rounded-md border"
-                    />
-                  </div>
-                ) : null}
-
-                {section.type === "VIDEO" && section.url ? (
-                  <div className="w-full mt-2 rounded-md border overflow-hidden">
-                    <video src={section.url} autoPlay loop muted></video>
-                  </div>
-                ) : null}
-
-                {section.type === "TEXT" && section.text ? (
-                  <div className="w-full h-28 p-1  mt-2 border rounded-md">
-                    <p>{section.text}</p>
-                  </div>
-                ) : null}
-
-                {section.type === "EMBEDED" && section.url ? (
-                  <div className="w-full  mt-2  overflow-hidden border rounded-md">
-                    {/* <p>{section.url}</p> */}
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={section.url}
-                      allow="accelerometer; encrypted-media; gyroscope"
-                    ></iframe>
-                  </div>
-                ) : null}
               </div>
             </div>
           ))}

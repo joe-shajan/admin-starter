@@ -83,7 +83,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
       form.setValue("id", selectedSection.id);
       form.setValue("type", selectedSection.type);
 
-      if (selectedSection.url && type === "EMBEDED") {
+      if (selectedSection.url && type === "EMBEDDED") {
         form.setValue("embedUrl", selectedSection.url);
       }
       if (selectedSection.text) {
@@ -215,7 +215,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
                         <SelectItem value="IMAGE">Image</SelectItem>
                         <SelectItem value="VIDEO">Video</SelectItem>
                         <SelectItem value="TEXT">Text</SelectItem>
-                        <SelectItem value="EMBEDED">Embeded</SelectItem>
+                        <SelectItem value="EMBEDDED">EMBEDDED</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
@@ -268,18 +268,18 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
               )}
             />
           ) : null}
-          {type === "EMBEDED" ? (
+          {type === "EMBEDDED" ? (
             <FormField
               control={form.control}
               name="embedUrl"
               render={({ field }: { field: any }) => (
                 <FormItem>
-                  <FormLabel>Embeded URL</FormLabel>
+                  <FormLabel>EMBEDDED URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="Embeded code" {...field} />
+                    <Input placeholder="EMBEDDED code" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is your video Embeded code.
+                    This is your video EMBEDDED code.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -327,7 +327,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
           </div>
         ) : null}
 
-        {section?.type === "EMBEDED" && section.url ? (
+        {section?.type === "EMBEDDED" && section.url ? (
           <div className="w-full  mt-2  overflow-hidden rounded-md">
             {/* <p>{section.url}</p> */}
             <iframe
