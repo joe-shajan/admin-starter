@@ -200,7 +200,10 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
       </Form>
       <hr className="my-5" />
       <div>
-        <div className="w-full flex shadow-xl rounded-lg p-8">
+        <div className="flex justify-end">
+          <Button>Add section Item</Button>
+        </div>
+        <div className="w-full flex shadow-xl rounded-lg p-8 mt-4">
           <div className="w-9/12  flex flex-col gap-3">
             <h1>Headding 1</h1>
             <h1>Headding 2</h1>
