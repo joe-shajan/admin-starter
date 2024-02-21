@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionForm } from "@/components/sectionForm";
+import { SectionForm } from "@/components/newsectionForm";
 import { Sections } from "@/components/sections";
 import { isSuperAdmin } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -15,6 +15,7 @@ export default function Section() {
         {isSuperAdmin(session) ? (
           <SectionForm isEditing={false} />
         ) : (
+          // <SectionForm isEditing={false} />
           <div>You are not allowed to add new section</div>
         )}
       </div>
