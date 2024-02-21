@@ -1,3 +1,3 @@
-import type { User, Sections } from "@prisma/client";
+import type { User, Section } from "@prisma/client";
 
-export { User, Sections };
+export { User, Section };

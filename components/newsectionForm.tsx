@@ -24,28 +24,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Sections } from "@/types";
+import { Section } from "@/types";
 import { useEffect } from "react";
 import Image from "next/image";
 import { Loader2, Trash2 } from "lucide-react";
 import { Label } from "./ui/label";
+import useModal from "@/hooks/useModal";
+import { SectionItemModel } from "./sectionItemModel";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
     message: "section name must be at least 4 characters.",
   }),
-  type: z.string({
+  sectionType: z.string({
     required_error: "Please select an type.",
   }),
 });
 
 type SectionFormProps = {
-  selectedSection?: Sections | undefined;
+  selectedSection?: Section | undefined;
   isEditing: boolean;
 };
 
 export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
   const section = selectedSection;
+
+  const { isOpen, toggle, openModal, closeModal } = useModal();
 
   const queryClient = useQueryClient();
 
@@ -53,15 +57,14 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      type: "",
+      sectionType: "",
     },
   });
 
   useEffect(() => {
     if (isEditing && selectedSection) {
       form.setValue("name", selectedSection.name);
-
-      form.setValue("type", selectedSection.type);
+      form.setValue("sectionType", selectedSection.sectionType);
 
       // form.setValue("name",selectedSection.)
     }
@@ -99,12 +102,12 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const formData = new FormData();
     formData.append("name", data.name);
-    formData.append("type", data.type);
+    formData.append("sectionType", data.sectionType);
 
     mutation.mutate(formData);
   }
 
-  const type = form.watch("type");
+  const sectionType = form.watch("sectionType");
 
   return (
     <div className="flex flex-col">
@@ -119,7 +122,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
               <FormControl>
                 <Input
                   placeholder="ID"
-                  value={"343434"}
+                  value={selectedSection?.id}
                   // onChange={onChange}
                   disabled
                 />
@@ -150,14 +153,14 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
 
           <FormField
             control={form.control}
-            name="type"
+            name="sectionType"
             render={({ field: { value, onChange } }) => (
               <>
                 {isEditing ? (
                   <FormItem>
                     <FormLabel>Type</FormLabel>
                     <FormControl>
-                      <Input placeholder="type" disabled value={value} />
+                      <Input placeholder="sectionType" disabled value={value} />
                     </FormControl>
                     <FormDescription>This is your type.</FormDescription>
                     <FormMessage />
@@ -201,7 +204,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
       <hr className="my-5" />
       <div>
         <div className="flex justify-end">
-          <Button>Add section Item</Button>
+          <Button onClick={openModal}>Add section Item</Button>
         </div>
         <div className="w-full flex shadow-xl rounded-lg p-8 mt-4">
           <div className="w-9/12  flex flex-col gap-3">
@@ -225,6 +228,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
           </div>
         </div>
       </div>
+      <SectionItemModel isOpen={isOpen} toggle={toggle} />
     </div>
   );
 }

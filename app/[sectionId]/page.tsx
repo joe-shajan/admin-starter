@@ -1,6 +1,7 @@
 "use client";
 
-import { SectionForm } from "@/components/sectionForm";
+import { SectionForm } from "@/components/newsectionForm";
+// import { SectionForm } from "@/components/sectionForm";
 import { Sections } from "@/components/sections";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getSection } from "@/services";
@@ -61,6 +62,7 @@ export default function Section() {
       ) : (
         <div className={`w-full md:w-4/5 border rounded p-6`}>
           <SectionForm selectedSection={section} isEditing={true} />
+
           {section && isSuperAdmin(session) ? (
             <>
               {deleteMutation.isLoading ? (

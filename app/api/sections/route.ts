@@ -119,12 +119,6 @@ export async function POST(request: any) {
     const formData = await request.formData();
     const name = formData.get("name");
     const sectionType = formData.get("sectionType");
-    const contentType = formData.get("contentType");
-    const heading1 = formData.get("heading1");
-    const heading2 = formData.get("heading2");
-    const text1 = formData.get("text1");
-    const text2 = formData.get("text2");
-    const url = formData.get("url");
 
     if (!user) {
       throw new Error("User not found");
@@ -134,16 +128,6 @@ export async function POST(request: any) {
       data: {
         name,
         sectionType,
-        sectionItems: {
-          create: {
-            heading1,
-            heading2,
-            text1,
-            text2,
-            contentType,
-            url,
-          },
-        },
         User: { connect: { id: user.id } },
       },
     });

@@ -6,10 +6,6 @@ Formbricks uses Typescript, Next.Js, Next-auth, Prisma, TailwindCss, Radix UI, m
 
 this is my prisma schema
 
-// This is your Prisma schema file,
-
-// This is your Prisma schema file,
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -45,27 +41,28 @@ enum SectionType {
 
 model SectionItem {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  heading1    String
+  heading1    String?
   heading2    String?
-  text1       String
+  text1       String?
   text2       String?
   contentType ContentType
   url         String?
-  Section     Section?    @relation(fields: [sectionsId], references: [id])
-  sectionsId  String?     @db.ObjectId
+  Section     Section?    @relation(fields: [sectionId], references: [id])
+  sectionId   String?     @db.ObjectId
 }
 
 model Section {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  name        String        @unique
-  sectionType SectionType
-  sectionItem SectionItem[]
-  position    Int?
-  addedTime   DateTime      @default(now())
-  updatedTime DateTime?
-  User        User          @relation(fields: [userId], references: [id])
-  userId      String        @db.ObjectId
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String        @unique
+  sectionType  SectionType
+  sectionItems SectionItem[]
+  position     Int?
+  addedTime    DateTime      @default(now())
+  updatedTime  DateTime?
+  User         User          @relation(fields: [userId], references: [id])
+  userId       String        @db.ObjectId
 }
+
 
 
 Please respond with “Admin Assistant is now ready! How can I help?” when you read everything.
