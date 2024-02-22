@@ -1,5 +1,5 @@
 import useModal from "@/hooks/useModal";
-import React from "react";
+import React, { useEffect } from "react";
 import Modal from "./Modal";
 import {
   Select,
@@ -29,17 +29,20 @@ import { toast } from "./ui/use-toast";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
+import type { SectionItem } from "@/types";
+import { useParams } from "next/navigation";
 
 type Props = {
   isOpen: boolean;
   toggle: () => void;
+  selectedSectionItem: SectionItem | null;
 };
 
 const FormSchema = z.object({
-  headding1: z.string().min(4, {
+  heading1: z.string().min(4, {
     message: "section headding 1 must be at least 4 characters.",
   }),
-  headding2: z.optional(
+  heading2: z.optional(
     z.string().min(4, {
       message: "section headding 2 must be at least 4 characters.",
     })
@@ -67,14 +70,19 @@ const FormSchema = z.object({
   ),
 });
 
-export const SectionItemModel = ({ isOpen, toggle }: Props) => {
+export const SectionItemModel = ({
+  isOpen,
+  toggle,
+  selectedSectionItem,
+}: Props) => {
   const queryClient = useQueryClient();
+  const { sectionId } = useParams();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      headding1: "",
-      headding2: "",
+      heading1: "",
+      heading2: "",
       text1: "",
       text2: "",
       file: undefined,
@@ -85,14 +93,19 @@ export const SectionItemModel = ({ isOpen, toggle }: Props) => {
 
   const mutation = useMutation({
     mutationFn: (data: any) => {
-      return axios.post(
-        "/api/sections/65d618e3441f31e6736e914d/section-item",
-        data
-      );
+      if (selectedSectionItem) {
+        return axios.put(
+          `/api/sections/${sectionId}/section-item/${selectedSectionItem.id}`,
+          data
+        );
+      } else {
+        return axios.post(`/api/sections/${sectionId}/section-item`, data);
+      }
     },
     onSuccess: (response) => {
       form.reset();
-      //   queryClient.invalidateQueries({ queryKey: ["sections"] });
+      queryClient.invalidateQueries({ queryKey: ["sections"] });
+      toggle();
       toast({
         title: "You submitted the following values:",
         description: (
@@ -115,12 +128,12 @@ export const SectionItemModel = ({ isOpen, toggle }: Props) => {
     console.log(data);
 
     const formData = new FormData();
-    formData.append("headding1", data.headding1);
+    formData.append("heading1", data.heading1);
     formData.append("text1", data.text1);
     formData.append("contentType", data.contentType);
 
-    if (data.headding2) {
-      formData.append("headding2", data.headding2);
+    if (data.heading2) {
+      formData.append("heading2", data.heading2);
     }
 
     if (data.text2) {
@@ -138,6 +151,32 @@ export const SectionItemModel = ({ isOpen, toggle }: Props) => {
     mutation.mutate(formData);
   }
 
+  useEffect(() => {
+    console.log(selectedSectionItem);
+    if (selectedSectionItem) {
+      if (selectedSectionItem.heading1) {
+        form.setValue("heading1", selectedSectionItem.heading1);
+      }
+      if (selectedSectionItem.heading2) {
+        form.setValue("heading2", selectedSectionItem.heading2);
+      }
+      if (selectedSectionItem.text1) {
+        form.setValue("text1", selectedSectionItem.text1);
+      }
+      if (selectedSectionItem.text2) {
+        form.setValue("text2", selectedSectionItem.text2);
+      }
+      if (selectedSectionItem.contentType) {
+        form.setValue("contentType", selectedSectionItem.contentType);
+      }
+      if (selectedSectionItem.url) {
+        form.setValue("url", selectedSectionItem.url);
+      }
+      // form.setValue("sectionType", selectedSection.sectionType);
+      // form.setValue("name",selectedSection.)
+    }
+  }, [selectedSectionItem]);
+
   return (
     <div>
       <Modal isOpen={isOpen} toggle={toggle}>
@@ -149,7 +188,7 @@ export const SectionItemModel = ({ isOpen, toggle }: Props) => {
             <div className="flex gap-4">
               <FormField
                 control={form.control}
-                name="headding1"
+                name="heading1"
                 render={({ field }: { field: any }) => (
                   <FormItem>
                     <FormLabel>Headding 1</FormLabel>
@@ -163,7 +202,7 @@ export const SectionItemModel = ({ isOpen, toggle }: Props) => {
               />
               <FormField
                 control={form.control}
-                name="headding2"
+                name="heading2"
                 render={({ field }: { field: any }) => (
                   <FormItem>
                     <FormLabel>Headding 2</FormLabel>

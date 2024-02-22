@@ -24,13 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Section } from "@/types";
-import { useEffect } from "react";
+import { Section, SectionItem } from "@/types";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Loader2, Trash2 } from "lucide-react";
 import { Label } from "./ui/label";
 import useModal from "@/hooks/useModal";
 import { SectionItemModel } from "./sectionItemModel";
+import { SectionWithItems } from "@/services";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -42,14 +43,14 @@ const FormSchema = z.object({
 });
 
 type SectionFormProps = {
-  selectedSection?: Section | undefined;
+  selectedSection?: SectionWithItems | undefined;
   isEditing: boolean;
 };
 
 export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
-  const section = selectedSection;
-
   const { isOpen, toggle, openModal, closeModal } = useModal();
+  const [selectedSectionItem, setSelectedSectionItem] =
+    useState<SectionItem | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -110,7 +111,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
   const sectionType = form.watch("sectionType");
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -202,33 +203,49 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
         </form>
       </Form>
       <hr className="my-5" />
-      <div>
+      <div className="overflow-y-auto h-2/3">
         <div className="flex justify-end">
           <Button onClick={openModal}>Add section Item</Button>
         </div>
-        <div className="w-full flex shadow-xl rounded-lg p-8 mt-4">
-          <div className="w-9/12  flex flex-col gap-3">
-            <h1>Headding 1</h1>
-            <h1>Headding 2</h1>
-            <p>Paragraph 1</p>
-            <p>Paragraph 2</p>
-            <div className="flex gap-2">
-              <Button>edit</Button>
-              <Button>delete</Button>
+        {selectedSection?.sectionItems.map((item) => (
+          <div
+            key={item.id}
+            className="w-full flex shadow-xl rounded-lg p-8 mt-4"
+          >
+            <div className="w-9/12  flex flex-col gap-3">
+              <h1>{item.heading1}</h1>
+              <h1>{item.heading2}</h1>
+              <p>{item.text1}</p>
+              <p>{item.text2}</p>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    setSelectedSectionItem(item);
+                    openModal();
+                  }}
+                >
+                  edit
+                </Button>
+                <Button>delete</Button>
+              </div>
+            </div>
+            <div className="w-3/12 relative">
+              <Image
+                alt="profile"
+                objectFit="contain"
+                fill
+                className="w-full h-full top-0 left-0 rounded-md"
+                src="https://img.freepik.com/free-photo/glowing-spaceship-orbits-planet-starry-galaxy-generated-by-ai_188544-9655.jpg?size=626&ext=jpg&ga=GA1.1.1700460183.1708387200&semt=sph"
+              ></Image>
             </div>
           </div>
-          <div className="w-3/12 relative">
-            <Image
-              alt="profile"
-              objectFit="contain"
-              fill
-              className="w-full h-full top-0 left-0 rounded-md"
-              src="https://img.freepik.com/free-photo/glowing-spaceship-orbits-planet-starry-galaxy-generated-by-ai_188544-9655.jpg?size=626&ext=jpg&ga=GA1.1.1700460183.1708387200&semt=sph"
-            ></Image>
-          </div>
-        </div>
+        ))}
       </div>
-      <SectionItemModel isOpen={isOpen} toggle={toggle} />
+      <SectionItemModel
+        isOpen={isOpen}
+        toggle={toggle}
+        selectedSectionItem={selectedSectionItem}
+      />
     </div>
   );
 }

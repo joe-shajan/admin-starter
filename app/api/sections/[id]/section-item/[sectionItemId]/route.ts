@@ -1,9 +1,9 @@
 import { getCurrentUser } from "@/utils";
 import prisma from "@/utils/prisma";
 import {
-  S3Client,
-  PutObjectCommand,
   DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 
@@ -56,9 +56,9 @@ const addDate = (fileName: string): string => {
   return `${fileName}-${Date.now()}`;
 };
 
-export async function POST(request: any, { params }: any) {
+export async function PUT(request: any, { params }: any) {
   const user = await getCurrentUser();
-  const sectionId = params.id as string;
+  const sectionItemId = params.sectionItemId as string;
   try {
     const formData = await request.formData();
     const heading1 = formData.get("heading1");
@@ -73,13 +73,23 @@ export async function POST(request: any, { params }: any) {
       throw new Error("User not found");
     }
 
+    const existingSectionItem = await prisma.sectionItem.findUnique({
+      where: { id: sectionItemId },
+    });
+
+    if (!existingSectionItem) {
+      throw new Error("Section Item not found");
+    }
+
+    const oldFileUrl = existingSectionItem.url;
+
     const sectionData = {
-      heading1: heading1 ? heading1 : undefined,
-      heading2: heading2 ? heading2 : undefined,
-      text1: text1 ? text1 : undefined,
-      text2: text2 ? text2 : undefined,
-      contentType: contentType,
-      url: url ? url : undefined,
+      heading1: heading1 ? heading1 : existingSectionItem.heading1,
+      heading2: heading2 ? heading2 : existingSectionItem.heading2,
+      text1: text1 ? text1 : existingSectionItem.text1,
+      text2: text2 ? text2 : existingSectionItem.text2,
+      contentType: contentType || existingSectionItem.contentType,
+      url: url ? url : existingSectionItem.url,
     };
 
     if (file && (contentType === "IMAGE" || contentType === "VIDEO")) {
@@ -91,16 +101,19 @@ export async function POST(request: any, { params }: any) {
       );
 
       sectionData.url = fileName;
+
+      // Delete old file from S3
+      if (oldFileUrl) {
+        await deleteFileFromS3(oldFileUrl);
+      }
     }
 
-    const section = await prisma.sectionItem.create({
-      data: {
-        ...sectionData,
-        Section: { connect: { id: sectionId.toString() } },
-      },
+    const updatedSectionItem = await prisma.sectionItem.update({
+      where: { id: sectionItemId },
+      data: sectionData,
     });
 
-    return NextResponse.json(section);
+    return NextResponse.json(updatedSectionItem);
   } catch (error: any) {
     console.log(error);
 

@@ -196,7 +196,7 @@ export async function GET(request: Request, { params }: any) {
 
     const section = await prisma.section.findUnique({
       where: { id: sectionId },
-      include: { User: true },
+      include: { User: true, sectionItems: true },
     });
 
     if (!section) {
