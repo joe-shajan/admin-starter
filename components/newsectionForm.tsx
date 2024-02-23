@@ -144,7 +144,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full md:flex space-y-6 md:space-y-0 justify-between"
+          className="w-full md:flex space-y-6 md:space-y-0 gap-6"
         >
           {isEditing ? (
             <FormItem>
@@ -264,7 +264,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
                 </Button>
               </div>
             </div>
-            <div className="w-3/12 relative">
+            {/* <div className="w-3/12 relative">
               <Image
                 alt="profile"
                 objectFit="contain"
@@ -272,7 +272,36 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
                 className="w-full h-full top-0 left-0 rounded-md"
                 src="https://img.freepik.com/free-photo/glowing-spaceship-orbits-planet-starry-galaxy-generated-by-ai_188544-9655.jpg?size=626&ext=jpg&ga=GA1.1.1700460183.1708387200&semt=sph"
               ></Image>
-            </div>
+            </div> */}
+            {item?.contentType === "IMAGE" && item.url ? (
+              <div className="w-3/12 relative">
+                <Image
+                  src={item.url}
+                  alt="profile"
+                  objectFit="contain"
+                  fill
+                  className="w-full h-full top-0 left-0 rounded-md"
+                />
+              </div>
+            ) : null}
+
+            {item?.contentType === "VIDEO" && item.url ? (
+              <div className="w-3/12 h-full mt-2 rounded-md overflow-hidden">
+                <video src={item.url} autoPlay loop muted></video>
+              </div>
+            ) : null}
+
+            {item?.contentType === "EMBEDDED" && item.url ? (
+              <div className="w-3/12 mt-2 overflow-hidden rounded-md">
+                {/* <p>{item.url}</p> */}
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={item.url}
+                  allow="accelerometer; encrypted-media; gyroscope"
+                ></iframe>
+              </div>
+            ) : null}
           </div>
         ))}
       </div>

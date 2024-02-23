@@ -42,19 +42,11 @@ const FormSchema = z.object({
   heading1: z.string().min(4, {
     message: "section headding 1 must be at least 4 characters.",
   }),
-  heading2: z.optional(
-    z.string().min(4, {
-      message: "section headding 2 must be at least 4 characters.",
-    })
-  ),
+  heading2: z.optional(z.string()),
   text1: z.string().min(4, {
     message: "section text must be at least 4 characters.",
   }),
-  text2: z.optional(
-    z.string().min(4, {
-      message: "section text must be at least 4 characters.",
-    })
-  ),
+  text2: z.optional(z.string()),
   contentType: z.string({
     required_error: "Please select an type.",
   }),
@@ -177,6 +169,8 @@ export const SectionItemModel = ({
     }
   }, [selectedSectionItem]);
 
+  const contentType = form.watch("contentType");
+
   return (
     <div>
       <Modal isOpen={isOpen} toggle={toggle}>
@@ -270,20 +264,20 @@ export const SectionItemModel = ({
                 />
               </div>
               <div className="w-2/3">
-                <Controller
+                {/* <Controller
                   name="file"
                   control={form.control}
                   render={({ field: { ref, name, onBlur, onChange } }) => (
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                       <Label htmlFor="file">
-                        {/* {type === "IMAGE" ? "Image" : "Video"} */}
-                        Video
+                        {contentType === "IMAGE" ? "Image" : "Video"}
                       </Label>
                       <Input
                         id="file"
                         type="file"
-                        accept={`video/*`}
-                        // accept={`${type === "IMAGE" ? "image/*" : "video/*"}`}
+                        accept={`${
+                          contentType === "IMAGE" ? "image/*" : "video/*"
+                        }`}
                         ref={ref}
                         name={name}
                         onBlur={onBlur}
@@ -293,7 +287,52 @@ export const SectionItemModel = ({
                       />
                     </div>
                   )}
-                />
+                /> */}
+                {contentType === "IMAGE" || contentType === "VIDEO" ? (
+                  <Controller
+                    name="file"
+                    control={form.control}
+                    render={({ field: { ref, name, onBlur, onChange } }) => (
+                      <div className="grid w-full max-w-sm items-center gap-1.5">
+                        <Label htmlFor="file">
+                          {contentType === "IMAGE" ? "Image" : "Video"}
+                        </Label>
+                        <Input
+                          id="file"
+                          type="file"
+                          accept={`${
+                            contentType === "IMAGE" ? "image/*" : "video/*"
+                          }`}
+                          ref={ref}
+                          name={name}
+                          onBlur={onBlur}
+                          onChange={(e) => {
+                            onChange(e.target.files?.[0]);
+                          }}
+                        />
+                      </div>
+                    )}
+                  />
+                ) : null}
+                {contentType === "EMBEDDED" ? (
+                  <FormField
+                    control={form.control}
+                    name="url"
+                    render={({ field }: { field: any }) => (
+                      <FormItem>
+                        <FormLabel>Embedded URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="paste embeded url here"
+                            {...field}
+                          />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : null}
               </div>
             </div>
             <div className="flex justify-center items-center">
