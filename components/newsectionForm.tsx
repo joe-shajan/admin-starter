@@ -27,12 +27,14 @@ import {
 import { Section, SectionItem } from "@/types";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { Label } from "./ui/label";
 import useModal from "@/hooks/useModal";
 import { SectionItemModel } from "./sectionItemModel";
 import { SectionWithItems } from "@/services";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { isSuperAdmin } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -55,6 +57,8 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
 
   const queryClient = useQueryClient();
   const { sectionId } = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -139,107 +143,156 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
     },
   });
 
-  return (
-    <div className="flex flex-col h-full">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full md:flex space-y-6 md:space-y-0 gap-6"
-        >
-          {isEditing ? (
-            <FormItem>
-              <FormLabel>Section id</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="ID"
-                  value={selectedSection?.id}
-                  // onChange={onChange}
-                  disabled
-                />
-              </FormControl>
-              <FormDescription>
-                Add this ID in your HTML element
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          ) : null}
+  const deleteSectionMutation = useMutation({
+    mutationFn: (sectionId: string) => {
+      return axios.delete(`/api/sections/${sectionId}`);
+    },
+    onSuccess: (response) => {
+      router.push("/");
+      queryClient.invalidateQueries({ queryKey: ["sections"] });
+      toast({
+        title: "Section deleted successfully",
+      });
+      // Handle any additional logic after successful deletion
+    },
+    onError: (error) => {
+      console.log(error);
+      toast({
+        title: "Error deleting section",
+      });
+    },
+  });
 
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }: { field: any }) => (
+  const handleDeleteSection = (sectionId: string) => {
+    deleteSectionMutation.mutate(sectionId);
+  };
+
+  return (
+    <div className="flex flex-col h-full overflow-y-auto p-6">
+      <div className="flex justify-between items-center">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full md:flex space-y-6 md:space-y-0 gap-6"
+          >
+            {isEditing ? (
               <FormItem>
-                <FormLabel>Section Name</FormLabel>
+                <FormLabel>Section id</FormLabel>
                 <FormControl>
-                  <Input placeholder="name" {...field} />
+                  <Input
+                    placeholder="ID"
+                    value={selectedSection?.id}
+                    // onChange={onChange}
+                    disabled
+                  />
                 </FormControl>
                 <FormDescription>
-                  This is your section display name.
+                  Add this ID in your HTML element
                 </FormDescription>
                 <FormMessage />
               </FormItem>
-            )}
-          />
+            ) : null}
 
-          <FormField
-            control={form.control}
-            name="sectionType"
-            render={({ field: { value, onChange } }) => (
-              <>
-                {isEditing ? (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <FormControl>
-                      <Input placeholder="sectionType" disabled value={value} />
-                    </FormControl>
-                    <FormDescription>This is your type.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                ) : (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <Select onValueChange={onChange} defaultValue={value}>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Section Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="name" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This is your section display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="sectionType"
+              render={({ field: { value, onChange } }) => (
+                <>
+                  {isEditing ? (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a type" />
-                        </SelectTrigger>
+                        <Input
+                          placeholder="sectionType"
+                          disabled
+                          value={value}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="SINGLE">Single</SelectItem>
-                        <SelectItem value="MULTIPLE">Multiple</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Select the type of your section
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              </>
-            )}
-          />
+                      <FormDescription>This is your type.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  ) : (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select onValueChange={onChange} defaultValue={value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="SINGLE">Single</SelectItem>
+                          <SelectItem value="MULTIPLE">Multiple</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select the type of your section
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                </>
+              )}
+            />
 
-          <div className="flex justify-center items-center">
-            {mutation.isLoading ? (
-              <Button disabled>
+            <div className="flex justify-center items-center">
+              {mutation.isLoading ? (
+                <Button disabled>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {"Saving"}
+                </Button>
+              ) : (
+                <Button type="submit">{"Save"}</Button>
+              )}
+            </div>
+          </form>
+        </Form>
+        {selectedSection && isSuperAdmin(session) ? (
+          <>
+            {deleteSectionMutation.isLoading ? (
+              <Button variant="destructive" size="sm" className="mt-2" disabled>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {"Saving"}
+                Deleting
               </Button>
             ) : (
-              <Button type="submit">{"Save"}</Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="mt-2"
+                onClick={() => handleDeleteSection(selectedSection.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </Button>
             )}
-          </div>
-        </form>
-      </Form>
+          </>
+        ) : null}
+      </div>
       <hr className="my-5" />
-      <div className="overflow-y-auto h-2/3">
+      <div>
         <div className="flex justify-end">
           <Button onClick={openModal}>Add section Item</Button>
         </div>
         {selectedSection?.sectionItems.map((item) => (
           <div
             key={item.id}
-            className="w-full flex shadow-xl rounded-lg p-8 mt-4"
+            className="w-full flex shadow-md rounded-lg p-8 mt-4"
           >
             <div className="w-9/12  flex flex-col gap-3">
               <h1>{item.heading1}</h1>
@@ -248,20 +301,31 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
               <p>{item.text2}</p>
               <div className="flex gap-2">
                 <Button
+                  variant="outline"
+                  size="icon"
                   onClick={() => {
                     setSelectedSectionItem(item);
                     openModal();
                   }}
                 >
-                  edit
+                  <Pencil />
                 </Button>
-                <Button
-                  onClick={() => {
-                    deleteMutation.mutate(item.id);
-                  }}
-                >
-                  delete
-                </Button>
+
+                {deleteMutation.isLoading ? (
+                  <Button variant="outline" size="icon">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      deleteMutation.mutate(item.id);
+                    }}
+                  >
+                    <Trash2 />
+                  </Button>
+                )}
               </div>
             </div>
             {/* <div className="w-3/12 relative">

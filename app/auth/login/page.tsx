@@ -69,7 +69,7 @@ const FormEl = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="joe@gmail.com" {...field} />
+                <Input placeholder="admin@domain.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

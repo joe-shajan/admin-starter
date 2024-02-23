@@ -15,9 +15,6 @@ import { useSession } from "next-auth/react";
 
 export default function Section() {
   const { sectionId } = useParams();
-  const queryClient = useQueryClient();
-  const router = useRouter();
-  const { data: session } = useSession();
 
   const {
     data: section,
@@ -28,30 +25,6 @@ export default function Section() {
     queryFn: () => getSection(sectionId as string),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (sectionId: string) => {
-      return axios.delete(`/api/sections/${sectionId}`);
-    },
-    onSuccess: (response) => {
-      router.push("/");
-      queryClient.invalidateQueries({ queryKey: ["sections"] });
-      toast({
-        title: "Section deleted successfully",
-      });
-      // Handle any additional logic after successful deletion
-    },
-    onError: (error) => {
-      console.log(error);
-      toast({
-        title: "Error deleting section",
-      });
-    },
-  });
-
-  const handleDeleteSection = (sectionId: string) => {
-    deleteMutation.mutate(sectionId);
-  };
-
   return (
     <div className="flex md:h-[91vh] p-2 gap-2">
       <Sections hide />
@@ -60,33 +33,8 @@ export default function Section() {
       ) : error ? (
         <div>cound not found section</div>
       ) : (
-        <div className={`w-full md:w-4/5 border rounded p-6`}>
+        <div className={`w-full md:w-4/5 border rounded`}>
           <SectionForm selectedSection={section} isEditing={true} />
-
-          {section && isSuperAdmin(session) ? (
-            <>
-              {deleteMutation.isLoading ? (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="mt-2"
-                  disabled
-                >
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting
-                </Button>
-              ) : (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => handleDeleteSection(section.id)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete
-                </Button>
-              )}
-            </>
-          ) : null}
         </div>
       )}
     </div>

@@ -151,6 +151,10 @@ export async function DELETE(request: any, { params }: any) {
       (existingSectionItem.contentType === "IMAGE" ||
         existingSectionItem.contentType === "VIDEO")
     ) {
+      console.log(oldFileUrl);
+
+      console.log("in delete");
+
       await deleteFileFromS3(oldFileUrl);
     }
 
