@@ -126,3 +126,49 @@ export async function PUT(request: any, { params }: any) {
     );
   }
 }
+
+export async function DELETE(request: any, { params }: any) {
+  const user = await getCurrentUser();
+  const sectionItemId = params.sectionItemId as string;
+
+  try {
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const existingSectionItem = await prisma.sectionItem.findUnique({
+      where: { id: sectionItemId },
+    });
+
+    if (!existingSectionItem) {
+      throw new Error("Section Item not found");
+    }
+
+    // Delete file from S3 if it exists and contentType is image or video
+    const oldFileUrl = existingSectionItem.url;
+    if (
+      oldFileUrl &&
+      (existingSectionItem.contentType === "IMAGE" ||
+        existingSectionItem.contentType === "VIDEO")
+    ) {
+      await deleteFileFromS3(oldFileUrl);
+    }
+
+    // Delete the section item
+    await prisma.sectionItem.delete({
+      where: { id: sectionItemId },
+    });
+
+    return NextResponse.json({ message: "Section Item deleted successfully" });
+  } catch (error: any) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        error: error.message,
+        errorCode: error.code,
+      },
+      { status: 500 }
+    );
+  }
+}

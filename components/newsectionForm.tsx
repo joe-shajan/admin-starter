@@ -32,6 +32,7 @@ import { Label } from "./ui/label";
 import useModal from "@/hooks/useModal";
 import { SectionItemModel } from "./sectionItemModel";
 import { SectionWithItems } from "@/services";
+import { useParams } from "next/navigation";
 
 const FormSchema = z.object({
   name: z.string().min(4, {
@@ -53,6 +54,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
     useState<SectionItem | null>(null);
 
   const queryClient = useQueryClient();
+  const { sectionId } = useParams();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -109,6 +111,33 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
   }
 
   const sectionType = form.watch("sectionType");
+
+  const deleteMutation = useMutation({
+    mutationFn: (selectedSectionItemId: string) => {
+      return axios.delete(
+        `/api/sections/${sectionId}/section-item/${selectedSectionItemId}`
+      );
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["sections"] });
+
+      toast({
+        title: "You submitted the following values:",
+        description: (
+          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">
+              {JSON.stringify(response.data, null, 2)}
+            </code>
+          </pre>
+        ),
+      });
+      // router.push("/auth/login");
+    },
+    onError: () => {
+      // toast({ error: "some thing went wrong" });
+      // toast.error("Signup failed");
+    },
+  });
 
   return (
     <div className="flex flex-col h-full">
@@ -226,7 +255,13 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
                 >
                   edit
                 </Button>
-                <Button>delete</Button>
+                <Button
+                  onClick={() => {
+                    deleteMutation.mutate(item.id);
+                  }}
+                >
+                  delete
+                </Button>
               </div>
             </div>
             <div className="w-3/12 relative">
