@@ -47,8 +47,6 @@ export const Sections = ({ hide }: Props) => {
         <div className="px-4 py-3 flex flex-col space-y-6">
           <SkeletonCard />
           <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
         </div>
       ) : (
         <>
