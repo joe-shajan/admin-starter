@@ -7,9 +7,9 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
 import { SkeletonCard } from "./skeletons";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { isSuperAdmin } from "@/lib/utils";
+import { cn, isSuperAdmin } from "@/lib/utils";
 
 type Props = {
   hide: boolean;
@@ -17,6 +17,7 @@ type Props = {
 
 export const Sections = ({ hide }: Props) => {
   const { data: session } = useSession();
+  const { sectionId } = useParams();
 
   const router = useRouter();
 
@@ -46,16 +47,25 @@ export const Sections = ({ hide }: Props) => {
         <div className="px-4 py-3 flex flex-col space-y-6">
           <SkeletonCard />
           <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
       ) : (
         <>
           {sections?.map((section) => (
-            <div key={section.id} className="px-4 py-3">
+            <div key={section.id} className="px-4 py-1">
               <div
                 className="cursor-pointer"
                 onClick={() => router.push(`/${section.id}`)}
               >
-                <div className="w-full whitespace-nowrap text-lg overflow-hidden text-ellipsis p-2 rounded-lg hover:bg-slate-50 transition ease">
+                <div
+                  className={cn(
+                    "w-full whitespace-nowrap text-lg overflow-hidden text-ellipsis p-2 ps-3 rounded-lg  transition ease",
+                    sectionId === section.id
+                      ? "bg-slate-100 hover:bg-slate-200"
+                      : "hover:bg-slate-100"
+                  )}
+                >
                   {section.name}
                 </div>
               </div>
