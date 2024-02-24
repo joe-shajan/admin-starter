@@ -264,30 +264,6 @@ export const SectionItemModel = ({
                 />
               </div>
               <div className="w-2/3">
-                {/* <Controller
-                  name="file"
-                  control={form.control}
-                  render={({ field: { ref, name, onBlur, onChange } }) => (
-                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                      <Label htmlFor="file">
-                        {contentType === "IMAGE" ? "Image" : "Video"}
-                      </Label>
-                      <Input
-                        id="file"
-                        type="file"
-                        accept={`${
-                          contentType === "IMAGE" ? "image/*" : "video/*"
-                        }`}
-                        ref={ref}
-                        name={name}
-                        onBlur={onBlur}
-                        onChange={(e) => {
-                          onChange(e.target.files?.[0]);
-                        }}
-                      />
-                    </div>
-                  )}
-                /> */}
                 {contentType === "IMAGE" || contentType === "VIDEO" ? (
                   <Controller
                     name="file"

@@ -41,6 +41,7 @@ model SectionItem {
   text2       String?
   contentType ContentType
   url         String?
+  addedTime   DateTime    @default(now())
   Section     Section?    @relation(fields: [sectionId], references: [id])
   sectionId   String?     @db.ObjectId
 }
@@ -50,9 +51,6 @@ model Section {
   name         String        @unique
   sectionType  SectionType
   sectionItems SectionItem[]
-  position     Int?
-  addedTime    DateTime      @default(now())
-  updatedTime  DateTime?
   User         User          @relation(fields: [userId], references: [id])
   userId       String        @db.ObjectId
 }

@@ -10,7 +10,11 @@ export async function GET(request: any, { params }: any) {
         userId: userId,
       },
       include: {
-        sectionItems: true,
+        sectionItems: {
+          orderBy: {
+            addedTime: "desc",
+          },
+        },
       },
     });
 

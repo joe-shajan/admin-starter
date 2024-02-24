@@ -32,71 +32,6 @@ async function deleteFileFromS3(fileName: string): Promise<void> {
   }
 }
 
-// export async function DELETE(request: Request, { params }: any) {
-//   const userDetails = await getCurrentUser();
-
-//   try {
-//     if (!userDetails) {
-//       return NextResponse.json(
-//         {
-//           error: "User not found",
-//         },
-//         { status: 400 }
-//       );
-//     }
-
-//     const sectionId = params.id as string;
-
-//     const section = await prisma.sections.findUnique({
-//       where: { id: sectionId },
-//       include: { User: true },
-//     });
-
-//     if (!section) {
-//       return NextResponse.json(
-//         {
-//           error: "Section not found",
-//         },
-//         { status: 404 }
-//       );
-//     }
-
-//     if (section.User.id !== userDetails.id) {
-//       return NextResponse.json(
-//         {
-//           error: "Unauthorized",
-//         },
-//         { status: 401 }
-//       );
-//     }
-
-//     if ((section.type === "IMAGE" || section.type === "VIDEO") && section.url) {
-//       await deleteFileFromS3(section.url);
-//     }
-
-//     // Delete section from database
-//     await prisma.sections.delete({
-//       where: { id: sectionId },
-//     });
-
-//     return NextResponse.json(
-//       {
-//         message: "Section deleted successfully",
-//       },
-//       { status: 200 }
-//     );
-//   } catch (error: any) {
-//     console.error("Error deleting section:", error);
-//     return NextResponse.json(
-//       {
-//         error: error.message,
-//         errorCode: error.code,
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 export async function DELETE(request: Request, { params }: any) {
   const userDetails = await getCurrentUser();
 
@@ -196,7 +131,14 @@ export async function GET(request: Request, { params }: any) {
 
     const section = await prisma.section.findUnique({
       where: { id: sectionId },
-      include: { User: true, sectionItems: true },
+      include: {
+        User: true,
+        sectionItems: {
+          orderBy: {
+            addedTime: "desc",
+          },
+        },
+      },
     });
 
     if (!section) {

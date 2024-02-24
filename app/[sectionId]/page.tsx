@@ -1,17 +1,10 @@
 "use client";
 
 import { SectionForm } from "@/components/newsectionForm";
-// import { SectionForm } from "@/components/sectionForm";
 import { Sections } from "@/components/sections";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getSection } from "@/services";
-import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { toast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Loader2, Trash2 } from "lucide-react";
-import { isSuperAdmin } from "@/lib/utils";
-import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 
 export default function Section() {
   const { sectionId } = useParams();

@@ -79,11 +79,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
 
   const mutation = useMutation({
     mutationFn: (data: any) => {
-      if (isEditing) {
-        return axios.put("/api/sections", data);
-      } else {
-        return axios.post("/api/sections", data);
-      }
+      return axios.post("/api/sections", data);
     },
     onSuccess: (response) => {
       form.reset();
@@ -200,7 +196,7 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
                 <FormItem>
                   <FormLabel>Section Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="name" {...field} />
+                    <Input placeholder="name" {...field} disabled={isEditing} />
                   </FormControl>
                   <FormDescription>
                     This is your section display name.
@@ -252,16 +248,18 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
               )}
             />
 
-            <div className="flex justify-center items-center">
-              {mutation.isLoading ? (
-                <Button disabled>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {"Saving"}
-                </Button>
-              ) : (
-                <Button type="submit">{"Save"}</Button>
-              )}
-            </div>
+            {!isEditing ? (
+              <div className="flex justify-center items-center">
+                {mutation.isLoading ? (
+                  <Button disabled>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {"Saving"}
+                  </Button>
+                ) : (
+                  <Button type="submit">{"Save"}</Button>
+                )}
+              </div>
+            ) : null}
           </form>
         </Form>
         {selectedSection && isSuperAdmin(session) ? (
@@ -328,15 +326,6 @@ export function SectionForm({ selectedSection, isEditing }: SectionFormProps) {
                 )}
               </div>
             </div>
-            {/* <div className="w-3/12 relative">
-              <Image
-                alt="profile"
-                objectFit="contain"
-                fill
-                className="w-full h-full top-0 left-0 rounded-md"
-                src="https://img.freepik.com/free-photo/glowing-spaceship-orbits-planet-starry-galaxy-generated-by-ai_188544-9655.jpg?size=626&ext=jpg&ga=GA1.1.1700460183.1708387200&semt=sph"
-              ></Image>
-            </div> */}
             {item?.contentType === "IMAGE" && item.url ? (
               <div className="w-3/12 relative">
                 <Image

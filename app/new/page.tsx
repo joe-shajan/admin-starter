@@ -15,7 +15,6 @@ export default function Section() {
         {isSuperAdmin(session) ? (
           <SectionForm isEditing={false} />
         ) : (
-          // <SectionForm isEditing={false} />
           <div>You are not allowed to add new section</div>
         )}
       </div>
